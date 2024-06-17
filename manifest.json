@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Copart Data Extractor",
+  "version": "1.0",
+  "description": "Extracts data from Copart and sends it to a web application.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "background",
+    "tabs"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.copart.com/*"],
+      "js": ["popup.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
