@@ -13,8 +13,10 @@ chrome.action.onClicked.addListener((tab) => {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'extractData') {
-    // https://bidmotors.bg/admin/create_from_copart_website
-    fetch('http://localhost:3000/admin/create_from_copart_website', {
+    // https://bidmotors.bg/admin/create_from_copart_website       Production
+    // http://104.248.243.255/admin/create_from_copart_website     Staging
+    // http://localhost:3000/admin/create_from_copart_website      Development
+    fetch('http://104.248.243.255/admin/create_from_copart_website', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
