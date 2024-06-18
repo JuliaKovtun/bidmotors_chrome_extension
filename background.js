@@ -13,6 +13,7 @@ chrome.action.onClicked.addListener((tab) => {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'extractData') {
+    // https://bidmotors.bg/admin/create_from_copart_website
     fetch('http://localhost:3000/admin/create_from_copart_website', {
       method: 'POST',
       headers: {
@@ -27,6 +28,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     .catch(error => {
       sendResponse({ status: 'error', error: error });
     });
-    return true;  // Keep the messaging channel open for sendResponse
+    return true;
   }
 });

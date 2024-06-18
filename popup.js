@@ -27,17 +27,10 @@ document.getElementById('extractData').addEventListener('click', () => {
   });
 });
 
-function sanitize(text) {
-  if (typeof text !== 'string') return text;
-  return text.replace(/\n/g, '').trim();
-}
-
 function extractData() {
   if (!window.location.href.startsWith('https://www.copart.com/lot/')) {
     return { error: 'This is not a Copart lot page.' };
   }
-
-  console.log(calculateAuctionDate());
 
   const data = {
     title: sanitize(document.querySelector('h1')?.textContent.split(' ').slice(1).join(' ')),
@@ -65,7 +58,10 @@ function extractData() {
   return data;
 }
 
-
+function sanitize(text) {
+  if (typeof text !== 'string') return text;
+  return text.replace(/\n/g, '').trim();
+}
 
 function parsedTextDate() {
   const dateElement = document.querySelector('[data-uname="lotdetailSaleinformationsaledatevalue"]') ||
