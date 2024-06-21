@@ -1,29 +1,62 @@
+document.getElementById('savePhoneButton').addEventListener('click', function() {
+  const phoneNumber = document.getElementById('phoneInput').value;
+  const messageElement = document.getElementById('message');
+
+  if (phoneNumber) {
+      chrome.storage.local.set({ phoneNumber: phoneNumber }, function() {
+          console.log('Phone number saved:', phoneNumber);
+          messageElement.textContent = 'Phone number saved successfully!';
+          messageElement.style.color = 'green';
+      });
+  } else {
+      messageElement.textContent = 'Please enter a phone number.';
+      messageElement.style.color = 'red';
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  chrome.storage.local.get(['phoneNumber'], function(result) {
+    if (result.phoneNumber) {
+      document.getElementById('phoneInput').value = result.phoneNumber;
+    }
+  });
+});
+
+function sanitize(text) {
+  if (typeof text !== 'string') return text;
+  return text.replace(/\n/g, '').trim();
+}
+
 document.getElementById('extractData').addEventListener('click', () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.scripting.executeScript({
+    chrome.scripting.executeScript({
           target: { tabId: tabs[0].id },
           function: extractData
       }, (results) => {
-          if (chrome.runtime.lastError) {
-              console.error(chrome.runtime.lastError);
-              displayError(chrome.runtime.lastError.message);
-              return;
-          }
+        if (chrome.runtime.lastError) {
+            console.error(chrome.runtime.lastError);
+            displayError(chrome.runtime.lastError.message);
+            return;
+        }
 
-          const data = results[0].result;
-          chrome.runtime.sendMessage({ action: 'extractData', data: data }, (response) => {
-              debugger;
-              if (response.status === 'ok') {
+      const data = results[0].result;
+      chrome.storage.local.get(['phoneNumber'], function(result) {
+        const phoneNumber = result.phoneNumber || '';
+        data.phoneNumber = phoneNumber;
+
+        chrome.runtime.sendMessage({ action: 'extractData', data: data }, (response) => {
+            if (response.status === 'ok') {
                 if (response.data.status === 'failed') {
-                  displayError(response.data.error);
+                    displayError(response.data.error);
                 } else {
-                  displayResult(response.data);
+                    displayResult(response.data);
                 }
             } else {
-              displayError(response.error);
+                displayError(response.error);
             }
-          });
+        });
       });
+    });
   });
 });
 
@@ -56,11 +89,6 @@ function extractData() {
   };
 
   return data;
-}
-
-function sanitize(text) {
-  if (typeof text !== 'string') return text;
-  return text.replace(/\n/g, '').trim();
 }
 
 function parsedTextDate() {
