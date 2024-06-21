@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Copart Data Extractor",
-  "version": "1.0",
+  "version": "2.0",
   "description": "Extracts data from Copart and sends it to a web application.",
   "permissions": [
     "activeTab",
