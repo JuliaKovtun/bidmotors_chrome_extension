@@ -14,6 +14,16 @@ document.getElementById('savePhoneButton').addEventListener('click', function() 
   }
 });
 
+document.getElementById('deletePhoneButton').addEventListener('click', function() {
+  chrome.storage.local.remove('phoneNumber', function() {
+      console.log('Phone number deleted');
+      document.getElementById('phoneInput').value = '';
+      const messageElement = document.getElementById('message');
+      messageElement.textContent = 'Phone number deleted successfully!';
+      messageElement.style.color = 'green';
+  });
+});
+
 document.addEventListener('DOMContentLoaded', function() {
   chrome.storage.local.get(['phoneNumber'], function(result) {
     if (result.phoneNumber) {
@@ -41,8 +51,7 @@ document.getElementById('extractData').addEventListener('click', () => {
 
       const data = results[0].result;
       chrome.storage.local.get(['phoneNumber'], function(result) {
-        const phoneNumber = result.phoneNumber || '';
-        data.phoneNumber = phoneNumber;
+        data.phone_number = result.phoneNumber || '';
 
         chrome.runtime.sendMessage({ action: 'extractData', data: data }, (response) => {
             if (response.status === 'ok') {

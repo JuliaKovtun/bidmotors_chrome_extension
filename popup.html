@@ -25,13 +25,57 @@
         #result {
             white-space: pre-line;
         }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus {
+            border-color: #66afe9;
+            outline: none;
+            box-shadow: 0 0 8px rgba(102, 175, 233, 0.6);
+        }
+
+        .buttons-container{
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        #savePhoneButton{
+            background-color: rgb(73, 207, 73);
+            border: none;
+            border-radius: 3px;
+        }
+
+        #deletePhoneButton{
+            background-color: rgb(240, 72, 72);
+            border: none;
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
     <h1>Copart Data Extractor</h1>
     <div class="message" id="message"></div>
-    <input type="text" id="phoneInput" placeholder="Enter phone number">
-    <button id="savePhoneButton">Save Phone Number</button>
+    <label>Enter phone number</label>
+    <input type="text" id="phoneInput" placeholder="0987654321">
+    <div class="buttons-container">
+        <button id="savePhoneButton">Save phone</button>
+        <button id="deletePhoneButton">Delete phone</button>
+    </div>
     <button id="extractData">Extract Data</button>
     <pre id="result"></pre>
     <script src="popup.js"></script>
