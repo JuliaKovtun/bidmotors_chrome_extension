@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Copart Data Extractor",
-  "version": "2.0",
-  "description": "Extracts data from Copart and sends it to a web application.",
+  "name": "Bidmotors",
+  "version": "2.1",
+  "description": "Extracts data from Copart and sends it to a Bidmotors web application.",
   "permissions": [
     "activeTab",
     "scripting",

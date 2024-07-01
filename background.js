@@ -1,5 +1,5 @@
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('Copart Data Extractor installed');
+  console.log('Bidmotors installed');
 });
 
 chrome.action.onClicked.addListener((tab) => {

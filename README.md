@@ -1,7 +1,7 @@
 # Copart Data Extractor
 
 
-Copart Data Extractor is a powerful Chrome extension designed to seamlessly extract detailed vehicle information from the Copart website and send it to the BidMotors website. Whether you are an auto enthusiast, a car dealer, or a data analyst, this extension will enhance your workflow by providing quick and easy access to crucial vehicle data, along with a summary and a direct link to the BidMotors website for further details.
+Bidmotors data extractor is a powerful Chrome extension designed to seamlessly extract detailed vehicle information from the Copart website and send it to the BidMotors website. Whether you are an auto enthusiast, a car dealer, or a data analyst, this extension will enhance your workflow by providing quick and easy access to crucial vehicle data, along with a summary and a direct link to the BidMotors website for further details.
 
 
 ### Features
