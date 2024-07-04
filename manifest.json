@@ -15,8 +15,8 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://*.copart.com/*"],
-      "js": ["popup.js"]
+      "matches": ["https://*.copart.com/*"],
+      "js": ["popup.js", "contentScript.js"]
     }
   ],
   "action": {
