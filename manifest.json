@@ -20,6 +20,12 @@
       "js": ["popup.js", "contentScript.js"]
     }
   ],
+  "web_accessible_resources": [
+    {
+      "resources": ["styles.css"],
+      "matches": ["https://*.copart.com/*"]
+    }
+  ],
   "action": {
     "default_popup": "popup.html"
   }

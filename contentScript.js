@@ -66,7 +66,7 @@
   }
 
   async function extractEngineType(lotDetailsArray) {
-    let engineType = document.querySelector('[data-uname="lotdetailEnginetype"]')
+    let engineType = document.querySelector('[data-uname="lotdetailEnginetype"]')?.textContent;
 
     if (!engineType) {
       const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Engine Type:'));
@@ -115,16 +115,39 @@
       const formattedData = data.data.replace(/\\n/g, '\n').replace(/^\s+/gm, '').trim();
       navigator.clipboard.writeText(formattedData).then(() => {
         console.log('Response copied to clipboard');
+        showNotification('Response copied to clipboard');
+        // displayCopyButton(formattedData);
+
       }).catch(err => {
         console.error('Could not copy text: ', err);
+        showNotification('Failed to copy response to clipboard');
         displayCopyButton(formattedData);
       });
       // sendResponse({ status: 'ok', data: data });
     })
     .catch(error => {
       console.log('Server response:', error);
+      showNotification('Server response:', error);
       // sendResponse({ status: 'error', error: error });
     });
+  }
+
+  function showNotification(message) {
+    let notificationBanner = document.getElementById('notificationBanner');
+    
+    if (!notificationBanner) {
+      notificationBanner = document.createElement('div');
+      notificationBanner.id = 'notificationBanner';
+      notificationBanner.className = 'notification-banner';
+      document.body.appendChild(notificationBanner);
+    }
+
+    notificationBanner.textContent = message;
+    notificationBanner.style.display = 'block';
+    
+    setTimeout(() => {
+      notificationBanner.style.display = 'none';
+    }, 3000);
   }
 
   function displayCopyButton(responseText) {
@@ -133,20 +156,23 @@
     if (!copyBtnExists) {
       const copyBtn = document.createElement("button");
       copyBtn.id = "copy-response-btn";
+      copyBtn.className = "bookmark-btn";
       copyBtn.innerText = "Copy Response";
       
-      // Insert after bookmarkBtn
-      const bookmarkBtn = document.getElementsByClassName("bookmark-btn")[0];
-      bookmarkBtn.parentNode.insertBefore(copyBtn, bookmarkBtn.nextSibling);
+      // Insert after sendRequestBtn
+      const sendRequestBtn = document.getElementsByClassName("bookmark-btn")[0];
+      sendRequestBtn.parentNode.insertBefore(copyBtn, sendRequestBtn.nextSibling);
   
       // Add click event listener to copy button
       copyBtn.addEventListener("click", () => {
         navigator.clipboard.writeText(responseText)
         .then(() => {
           console.log('Response copied to clipboard');
+          showNotification('Response copied to clipboard');
         })
         .catch(err => {
           console.error('Could not copy text: ', err);
+          showNotification('Failed to copy response to clipboard');
         });
       });
     }
@@ -209,49 +235,44 @@
     return new Date(Date.now() + days * 86400000 + hours * 3600000 + minutes * 60000).toISOString();
   }
 
-  function displayResult(data) {
-    const resultContainer = document.getElementById('result');
-    const { status, data: resultData } = data;
-    resultContainer.innerHTML = `<b>Status:</b> ${status}<br><b>Data:</b><br>${resultData.replace(/\n/g, '<br>').replace(/\t/g, '')}`;
-    resultContainer.style.display = 'block';
-  }
-
-  function displayError(error) {
-    const resultContainer = document.getElementById('result');
-    resultContainer.textContent = `Error: ${error}`;
-    resultContainer.style.display = 'block';
-  }
-
   // No data on new interface: state(highlights), keys, damage
 
-  const newVideoLoaded = async () => {
-    const bookmarkBtnExists = document.getElementsByClassName("bookmark-btn")[0];
+  function injectStyles() {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = chrome.runtime.getURL('styles.css');
+    document.head.appendChild(link);
+  }
 
-    if (!bookmarkBtnExists) {
-      const bookmarkBtn = document.createElement("button");
+  const newCopartTabLoaded = async () => {
+    const sendRequestBtnExists = document.getElementsByClassName("bookmark-btn")[0];
 
-      bookmarkBtn.className = "bookmark-btn";
-      bookmarkBtn.title = "Click to send data to Bidmotors";
-      bookmarkBtn.innerText = 'Send to Bidmotors!';
-      bookmarkBtn.id = 'extractData';
+    if (!sendRequestBtnExists) {
+      const sendRequestBtn = document.createElement("button");
 
-      let youtubeLeftControls = document.getElementsByClassName("title-and-highlights")[0];
-      if (!youtubeLeftControls) {
-        youtubeLeftControls = document.querySelector('.lot-details-header-block').querySelector('h1.p-m-0');
-        
+      sendRequestBtn.className = "bookmark-btn";
+      sendRequestBtn.title = "Click to send data to Bidmotors";
+      sendRequestBtn.innerText = 'Добавете в Bidmotors!';
+      sendRequestBtn.id = 'extractData';
+
+      let titleAndHighlights = document.querySelector(".share-button.btn-white.dropdown-toggle");
+      if (!titleAndHighlights) {
+        titleAndHighlights = document.querySelector('.lot-details-header-sprite.calendar-sprite-icon.p-position-relative.p-cursor-pointer');
       }
-      console.log('youtubeLeftControls' + youtubeLeftControls);
-
-      youtubeLeftControls.appendChild(bookmarkBtn);
-      bookmarkBtn.addEventListener("click", sendData);
+      // titleAndHighlights.insertAdjacentElement('afterend', sendRequestBtn)
+      titleAndHighlights.insertAdjacentElement('beforebegin', sendRequestBtn)
+      // titleAndHighlights.appendChild(sendRequestBtn);
+      sendRequestBtn.addEventListener("click", sendData);
     }
   };
 
   chrome.runtime.onMessage.addListener((obj, sender, response) => {
     if (document.readyState === 'complete') {
-      newVideoLoaded();
+      newCopartTabLoaded();
     } else {
-      window.addEventListener('load', newVideoLoaded);
+      window.addEventListener('load', newCopartTabLoaded);
     }
   });
+  injectStyles();
 })();

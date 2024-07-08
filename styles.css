@@ -1,0 +1,39 @@
+.bookmark-btn {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 6px 15px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 0px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.dropdown {
+  display: flex;
+}
+
+.p-align-start {
+  align-items: center;
+}
+
+.bookmark-btn:hover {
+  background-color: #45a049;
+}
+
+.notification-banner {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  z-index: 1000;
+  font-size: 16px;
+}
