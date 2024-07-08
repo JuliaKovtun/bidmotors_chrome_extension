@@ -4,30 +4,9 @@
     return text.replace(/\n/g, '').trim();
   }
 
-  function waitForElement(selector, timeout = 3000) {
-    return new Promise((resolve, reject) => {
-      const interval = 100;
-      let elapsedTime = 0;
-      
-      const checkElement = setInterval(() => {
-        const element = document.querySelector(selector);
-        if (element) {
-          clearInterval(checkElement);
-          resolve(element);
-        } else if (elapsedTime >= timeout) {
-          clearInterval(checkElement);
-          reject(new Error(`Element ${selector} not found within timeout`));
-        }
-        elapsedTime += interval;
-      }, interval);
-    });
-  }
-
   async function extractVincode(lotDetailsArray) {
-    let vincode = await waitForElement('[ng-if="unmaskingDisabled"] span')
-      .then(element => element.textContent)
-      .catch(() => null);
-    
+    let vincode = document.querySelector('[ng-if="unmaskingDisabled"] span')?.textContent;
+
     if (!vincode) {
       const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('VIN:'));
       vincode = lotDetail ? lotDetail.querySelector('.lot-details-value')?.textContent : null;
@@ -36,9 +15,7 @@
   }
 
   async function extractLotnumber(lotDetailsArray) {
-    let lotnumber = await waitForElement('#LotNumber')
-      .then(element => element.textContent)
-      .catch(() => null);
+    let lotnumber = document.querySelector('#LotNumber')?.textContent;
 
     if (!lotnumber) {
       const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Lot Number:'));
@@ -48,9 +25,7 @@
   }
 
   async function extractOdometerValue(lotDetailsArray) {
-    let odometerValue = await waitForElement('.odometer-value .j-c_s-b:nth-child(1) span')
-      .then(element => element.textContent)
-      .catch(() => null);
+    let odometerValue = document.querySelector('.odometer-value .j-c_s-b:nth-child(1) span')?.textContent;
 
     if (!odometerValue) {
       const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Odometer:'));
@@ -61,9 +36,7 @@
   }
 
   async function extractFuelType(lotDetailsArray) {
-    let fuelType = await waitForElement('[data-uname="lotdetailFuelvalue"]')
-      .then(element => element.textContent)
-      .catch(() => null);
+    let fuelType = document.querySelector('[data-uname="lotdetailFuelvalue"]')?.textContent;
 
     if (!fuelType) {
       const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Fuel:'));
@@ -73,9 +46,7 @@
   }
 
   async function extractGearbox(lotDetailsArray) {
-    let gearbox = await waitForElement('[ng-if="lotDetails.tmtp || lotDetails.htsmn==\'Y\'"] span')
-      .then(element => element.textContent)
-      .catch(() => null);
+    let gearbox = document.querySelector('[ng-if="lotDetails.tmtp || lotDetails.htsmn==\'Y\'"] span')?.textContent;
 
     if (!gearbox) {
       const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Transmission:'));
@@ -85,9 +56,7 @@
   }
 
   async function extractDrive(lotDetailsArray) {
-    let drive = await waitForElement('[data-uname="DriverValue"]')
-      .then(element => element.textContent)
-      .catch(() => null);
+    let drive = document.querySelector('[data-uname="DriverValue"]')?.textContent;
 
     if (!drive) {
       const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Drive:'));
@@ -97,9 +66,7 @@
   }
 
   async function extractEngineType(lotDetailsArray) {
-    let engineType = await waitForElement('[data-uname="lotdetailEnginetype"]')
-      .then(element => element.textContent)
-      .catch(() => null);
+    let engineType = document.querySelector('[data-uname="lotdetailEnginetype"]')
 
     if (!engineType) {
       const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Engine Type:'));
@@ -113,7 +80,7 @@
       .map(img => sanitize(img.src.replace('_thb.jpg', '_ful.jpg')));
 
     if (urls.length === 0) {
-      const imagesParentElement = await waitForElement('.p-galleria-thumbnail-items');
+      const imagesParentElement = document.querySelector('.p-galleria-thumbnail-items');
       const imageElements = imagesParentElement.querySelectorAll('.p-galleria-thumbnail-item-content');
 
       imageElements.forEach(img => {
@@ -184,13 +151,6 @@
       });
     }
   }
-  // function copyToClipboard(text) {
-  //   navigator.clipboard.writeText(text).then(() => {
-  //     console.log('Response copied to clipboard');
-  //   }).catch(err => {
-  //     console.error('Could not copy text: ', err);
-  //   });
-  // }
 
   const extractData = async () => {
     if (!window.location.href.startsWith('https://www.copart.com/lot/')) {
