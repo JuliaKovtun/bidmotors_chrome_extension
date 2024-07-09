@@ -102,7 +102,7 @@
       data.phone_number = result.phoneNumber || '';
     });
 
-    fetch('http://localhost:3000/admin/create_from_copart_website', {
+    fetch('https://bidmotors.bg/admin/create_from_copart_website', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -114,13 +114,11 @@
       console.log('Server response:', data);
       const formattedData = data.data.replace(/\\n/g, '\n').replace(/^\s+/gm, '').trim();
       navigator.clipboard.writeText(formattedData).then(() => {
-        console.log('Response copied to clipboard');
-        showNotification('Response copied to clipboard');
-        // displayCopyButton(formattedData);
-
+        console.log('Отговорът е копиран!');
+        showNotification('Отговорът е копиран!');
       }).catch(err => {
-        console.error('Could not copy text: ', err);
-        showNotification('Failed to copy response to clipboard');
+        console.error('Копирането на отговора не бе успешно: ', err);
+        showNotification('Копирането на отговора не бе успешно.');
         displayCopyButton(formattedData);
       });
       // sendResponse({ status: 'ok', data: data });
@@ -156,23 +154,23 @@
     if (!copyBtnExists) {
       const copyBtn = document.createElement("button");
       copyBtn.id = "copy-response-btn";
-      copyBtn.className = "bookmark-btn";
-      copyBtn.innerText = "Copy Response";
-      
+      copyBtn.className = "send-to-bidmotors-btn";
+      copyBtn.innerText = "Копиране на отговор!";
+
       // Insert after sendRequestBtn
-      const sendRequestBtn = document.getElementsByClassName("bookmark-btn")[0];
+      const sendRequestBtn = document.getElementsByClassName("send-to-bidmotors-btn")[0];
       sendRequestBtn.parentNode.insertBefore(copyBtn, sendRequestBtn.nextSibling);
-  
+
       // Add click event listener to copy button
       copyBtn.addEventListener("click", () => {
         navigator.clipboard.writeText(responseText)
         .then(() => {
-          console.log('Response copied to clipboard');
-          showNotification('Response copied to clipboard');
+          console.log('Отговорът е копиран!');
+          showNotification('Отговорът е копиран!');
         })
         .catch(err => {
-          console.error('Could not copy text: ', err);
-          showNotification('Failed to copy response to clipboard');
+          console.error('Копирането на отговора не бе успешно: ', err);
+          showNotification('Копирането на отговора не бе успешно.');
         });
       });
     }
@@ -246,12 +244,12 @@
   }
 
   const newCopartTabLoaded = async () => {
-    const sendRequestBtnExists = document.getElementsByClassName("bookmark-btn")[0];
+    const sendRequestBtnExists = document.getElementsByClassName("send-to-bidmotors-btn")[0];
 
     if (!sendRequestBtnExists) {
       const sendRequestBtn = document.createElement("button");
 
-      sendRequestBtn.className = "bookmark-btn";
+      sendRequestBtn.className = "send-to-bidmotors-btn";
       sendRequestBtn.title = "Click to send data to Bidmotors";
       sendRequestBtn.innerText = 'Добавете в Bidmotors!';
       sendRequestBtn.id = 'extractData';
@@ -260,9 +258,7 @@
       if (!titleAndHighlights) {
         titleAndHighlights = document.querySelector('.lot-details-header-sprite.calendar-sprite-icon.p-position-relative.p-cursor-pointer');
       }
-      // titleAndHighlights.insertAdjacentElement('afterend', sendRequestBtn)
       titleAndHighlights.insertAdjacentElement('beforebegin', sendRequestBtn)
-      // titleAndHighlights.appendChild(sendRequestBtn);
       sendRequestBtn.addEventListener("click", sendData);
     }
   };

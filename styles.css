@@ -1,5 +1,5 @@
-.bookmark-btn {
-  background-color: #4CAF50; /* Green */
+.send-to-bidmotors-btn {
+  background-color: #4CAF50;
   border: none;
   color: white;
   padding: 6px 15px;
@@ -20,14 +20,14 @@
   align-items: center;
 }
 
-.bookmark-btn:hover {
+.send-to-bidmotors-btn:hover {
   background-color: #45a049;
 }
 
 .notification-banner {
   display: none;
   position: fixed;
-  top: 0;
+  margin-top: 20px;
   left: 50%;
   transform: translateX(-50%);
   background-color: #4CAF50;
