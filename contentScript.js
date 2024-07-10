@@ -94,14 +94,31 @@
     return urls;
   }
 
-  async function sendData() {
-    const data = await extractData();
-    console.log(data);
-
-    chrome.storage.local.get(['phoneNumber'], function(result) {
-      data.phone_number = result.phoneNumber || '';
+  async function getPhoneNumber() {
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.get(['phoneNumber'], function(result) {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+        } else {
+          resolve(result.phoneNumber || '');
+        }
+      });
     });
+  }
 
+  async function sendData() {
+    let data = await extractData();
+    // console.log(data);
+
+    // chrome.storage.local.get(['phoneNumber'], function(result) {
+    //   data.phone_number = result.phoneNumber || '';
+    // });
+
+    const phoneNumber = await getPhoneNumber();
+    data.phone_number = phoneNumber;
+
+    // debugger;
+    console.log('Data: ' + data)
     fetch('https://bidmotors.bg/admin/create_from_copart_website', {
       method: 'POST',
       headers: {

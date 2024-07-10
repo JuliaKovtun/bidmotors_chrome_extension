@@ -130,7 +130,6 @@ function extractImages() {
   return urls;
 }
 
-debugger;
 document.getElementById('extractData').addEventListener('click', () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     chrome.scripting.executeScript({
