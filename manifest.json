@@ -16,14 +16,14 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://*.copart.com/*"],
+      "matches": ["https://*.copart.com/*", "https://*.iaai.com/*"],
       "js": ["popup.js", "contentScript.js"]
     }
   ],
   "web_accessible_resources": [
     {
       "resources": ["styles.css"],
-      "matches": ["https://*.copart.com/*"]
+      "matches": ["https://*.copart.com/*", "https://*.iaai.com/*"]
     }
   ],
   "action": {
