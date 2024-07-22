@@ -125,7 +125,7 @@
       }
     } else {
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Drive Line Type:'))
-      drive = lotDetail.nextElementSibling?.textContent || null;
+      drive = lotDetail?.nextElementSibling?.textContent || null;
     }
     // console.log(drive);
     return drive;
@@ -158,6 +158,22 @@
     }
     // console.log(engineType);
     return engineType;
+  }
+
+  async function extractVehicleType(url) {
+    let vehicleType;
+    if (url.startsWith('https://www.copart.com/lot/')) {
+      vehicleType = document.querySelector('[data-uname="lotdetailvehicletype"]')?.nextElementSibling?.textContent;
+      if (!vehicleType) {
+        const lotDetail = Array.from(document.querySelectorAll('strong')).find(element => element.textContent.trim() === 'Vehicle Type:')
+        vehicleType = lotDetail ? lotDetail.parentElement?.textContent.trim().replace('Vehicle Type:', '').trim() : null;
+      }
+    } else {
+      const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Vehicle:')).parentElement
+      vehicleType = lotDetail.querySelector('.data-list__value')?.textContent
+    }
+    console.log(vehicleType);
+    return vehicleType;
   }
 
   async function extractLocation(url) {
@@ -297,6 +313,7 @@
       location: sanitize(await extractLocation(url)),
       image_urls: await extractImages(url),
       website_url: window.location.href,
+      vehicle_type: sanitize(await extractVehicleType(url))
     };
 
     return data;
@@ -368,7 +385,7 @@
 
     // debugger;
     console.log('Data: ' + data)
-    fetch('http://localhost:3000/admin/create_from_copart_website', {
+    fetch('https://bidmotors.bg/admin/create_from_copart_website', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

@@ -166,7 +166,7 @@ function extractDrive(url, lotDetailsArray) {
     }
   } else {
     const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Drive Line Type:'))
-    drive = lotDetail.nextElementSibling?.textContent || null;
+    drive = lotDetail?.nextElementSibling?.textContent || null;
   }
   // console.log(drive);
   return drive;
@@ -199,6 +199,22 @@ function extractEngineType(url, lotDetailsArray) {
   }
   // console.log(engineType);
   return engineType;
+}
+
+function extractVehicleType(url) {
+  let vehicleType;
+  if (url.startsWith('https://www.copart.com/lot/')) {
+    vehicleType = document.querySelector('[data-uname="lotdetailvehicletype"]')?.nextElementSibling?.textContent;
+    if (!vehicleType) {
+      const lotDetail = Array.from(document.querySelectorAll('strong')).find(element => element.textContent.trim() === 'Vehicle Type:')
+      vehicleType = lotDetail ? lotDetail.parentElement?.textContent.trim().replace('Vehicle Type:', '').trim() : null;
+    }
+  } else {
+    const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Vehicle:')).parentElement
+    vehicleType = lotDetail.querySelector('.data-list__value')?.textContent
+  }
+  console.log(vehicleType);
+  return vehicleType;
 }
 
 function extractLocation(url) {
@@ -310,6 +326,7 @@ function extractData() {
     location: sanitize(extractLocation(url)),
     image_urls: extractImages(url),
     website_url: window.location.href,
+    vehicle_type: sanitize(extractVehicleType(url))
   };
 
   return data;
