@@ -4,16 +4,6 @@
     return text.replace(/\n/g, '').trim();
   }
 
-  // async function extractTitle(url) {
-  //   let title;
-  //   if (url.startsWith('https://www.copart.com/lot/')) {
-  //     title = document.querySelector('h1')?.textContent.split(' ').slice(1).join(' ')
-  //   } else {
-  //     title = 
-  //   }
-  //   sanitize(title)
-  // }
-
   async function extractVincode(url, lotDetailsArray) {
     let vincode;
     if (url.startsWith('https://www.copart.com/lot/')) {
