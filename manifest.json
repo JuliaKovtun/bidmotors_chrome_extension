@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Bidmotors",
-  "version": "2.1",
-  "description": "Extracts data from Copart and sends it to a Bidmotors web application.",
+  "version": "2.2",
+  "description": "Extracts data from Copart and IAAI. Sends data to a Bidmotors web application.",
   "permissions": [
     "activeTab",
     "scripting",
