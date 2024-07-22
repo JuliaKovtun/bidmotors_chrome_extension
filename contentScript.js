@@ -117,7 +117,8 @@
       }
     } else {
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Transmission:'))
-      gearbox = lotDetail.nextElementSibling?.textContent.split(' ')[0] || null;
+      gearbox = lotDetail.nextElementSibling?.textContent
+      gearbox = sanitize(gearbox).split(' ')[0] || null;
     }
     // console.log(gearbox);
     return gearbox;
@@ -169,22 +170,51 @@
     return engineType;
   }
 
-  async function extractImages() {
-    let urls = Array.from(document.querySelectorAll('#small-img-roll .img-responsive.cursor-pointer.thumbnailImg'))
-      .map(img => sanitize(img.src.replace('_thb.jpg', '_ful.jpg')));
+  async function extractLocation(url) {
+    let location;
+    if (url.startsWith('https://www.copart.com/lot/')) {
+      location = `USA, ${sanitize(document.querySelector('[data-uname="lotdetailSaleinformationlocationvalue"]')?.textContent ||
+                    document.querySelector('span[locationinfo]')?.textContent ) }` ||
+                    null
+    } else {
+      // TODO: use selector labels or items?
+      const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Selling Branch:')).parentElement
+      // const lotDetail = Array.from(document.querySelectorAll('.data-list__item')).find(element => element.querySelector('.data-list__label')?.textContent.includes('Primary Damage:'))
+      location = lotDetail.querySelector('.data-list__value')?.textContent
+    }
+    console.log(location);
+    return location;
+  }
 
-    if (urls.length === 0) {
-      const imagesParentElement = document.querySelector('.p-galleria-thumbnail-items');
-      const imageElements = imagesParentElement.querySelectorAll('.p-galleria-thumbnail-item-content');
+  async function extractImages(url) {
+    let urls;
 
-      imageElements.forEach(img => {
-        const url = img.querySelector('img').getAttribute('src').replace('_thb.jpg', '_ful.jpg');
-        if (url) {
-          urls.push(url);
+    if (url.startsWith('https://www.copart.com/lot/')) {
+      urls = Array.from(document.querySelectorAll('#small-img-roll .img-responsive.cursor-pointer.thumbnailImg'))
+        .map(img => sanitize(img.src.replace('_thb.jpg', '_ful.jpg')));
+
+      if (urls.length === 0) {
+        const imagesParentElement = document.querySelector('.p-galleria-thumbnail-items');
+        const imageElements = imagesParentElement.querySelectorAll('.p-galleria-thumbnail-item-content');
+
+        imageElements.forEach(img => {
+          const url = img.querySelector('img').getAttribute('src').replace('_thb.jpg', '_ful.jpg');
+          if (url) {
+            urls.push(url);
+          }
+        });
+      }
+    } else {
+      let imgElements = document.querySelector('#spacedthumbs1strow').querySelectorAll('img');
+      urls = Array.from(imgElements).map(img => {
+        let src = img.src.replace('&width=161&height=120', '&width=845&height=633');
+        if (img.className.includes('vehicle-image__thumb--engine') || img.className.includes('vehicle-image__thumb--360')) {
+          return;
+        } else {
+          return src;
         }
       });
     }
-
     return urls;
   }
 
@@ -202,12 +232,12 @@
 
   function showNotification(message) {
     let notificationBanner = document.getElementById('notificationBanner');
-    
+    // debugger;
     if (!notificationBanner) {
       notificationBanner = document.createElement('div');
       notificationBanner.id = 'notificationBanner';
       notificationBanner.className = 'notification-banner';
-      document.body.appendChild(notificationBanner);
+      window.location.href.startsWith('https://www.copart.com/lot/') ? document.body.appendChild(notificationBanner) : document.getElementsByTagName('header')[0].appendChild(notificationBanner)      
     }
 
     notificationBanner.textContent = message;
@@ -274,9 +304,8 @@
       // TODO: Add Date parse on Bidmotors website
       auction_date: calculateAuctionDate(url),
       auction_date_label: sanitize(parsedTextDate(url)),
-      // TODO: next three
-      location: `USA, ${sanitize(document.querySelector('[data-uname="lotdetailSaleinformationlocationvalue"]')?.textContent || document.querySelector('span[locationinfo]')?.textContent ) }` || null,
-      image_urls: await extractImages(),
+      location: sanitize(await extractLocation(url)),
+      image_urls: await extractImages(url),
       website_url: window.location.href,
     };
 
