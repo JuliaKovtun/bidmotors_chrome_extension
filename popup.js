@@ -301,7 +301,7 @@ function extractData() {
     millage: sanitize(extractOdometerValue(url, lotDetailsArray)),
     fuel_type: sanitize(extractFuelType(url, lotDetailsArray)),
     gearbox: sanitize(extractGearbox(url, lotDetailsArray)),
-    keys: sanitize(document.querySelector('[data-uname="lotdetailKeyvalue"]')?.textContent || document.querySelector('#hdnkeysPresent_Ind').nextElementSibling.children[0].textContent),
+    keys: sanitize(document.querySelector('[data-uname="lotdetailKeyvalue"]')?.textContent || document.querySelector('#hdnkeysPresent_Ind')?.nextElementSibling.children[0].textContent || null),
     drive_state: sanitize(extractDrive(url, lotDetailsArray)),
     damage: sanitize(extractDamage(url)),
     engine: sanitize(extractEngineType(url, lotDetailsArray)),

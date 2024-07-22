@@ -287,7 +287,7 @@
       millage: sanitize(await extractOdometerValue(url, lotDetailsArray)),
       fuel_type: sanitize(await extractFuelType(url, lotDetailsArray)),
       gearbox: sanitize(await extractGearbox(url, lotDetailsArray)),
-      keys: sanitize(document.querySelector('[data-uname="lotdetailKeyvalue"]')?.textContent || document.querySelector('#hdnkeysPresent_Ind').nextElementSibling.children[0].textContent),
+      keys: sanitize(document.querySelector('[data-uname="lotdetailKeyvalue"]')?.textContent || document.querySelector('#hdnkeysPresent_Ind')?.nextElementSibling.children[0].textContent || null),
       drive_state: sanitize(await extractDrive(url, lotDetailsArray)),
       damage: sanitize(await extractDamage(url)),
       engine: sanitize(await extractEngineType(url, lotDetailsArray)),
