@@ -38,54 +38,56 @@ function sanitize(text) {
 }
 
 
-
-
-
 // ///////////////////////////////////////////////////////////////////////////////////
 
 
 function extractVincode(url, lotDetailsArray) {
   let vincode;
-  if (url.startsWith('https://www.copart.com/lot/')) {
-    vincode = document.querySelector('[ng-if="unmaskingDisabled"] span')?.textContent;
-    if (!vincode) {
-      const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('VIN:'));
-      vincode = lotDetail ? lotDetail.querySelector('.lot-details-value')?.textContent : null;
+    if (url.startsWith('https://www.copart.com/lot/')) {
+      vincode = document.querySelector('[ng-if="unmaskingDisabled"] span')?.textContent;
+      if (!vincode) {
+        const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('VIN:'));
+        vincode = lotDetail ? lotDetail.querySelector('.lot-details-value')?.textContent : null;
+      }
+    } else if (url.startsWith('https://www.iaai.com/')) {
+      vincode = document.querySelector('#VIN_vehicleStats1')?.nextElementSibling?.textContent?.split(' ')[0] || null
+    } else {
+      vincode = document.querySelector('.Vin__container')?.textContent || null;
     }
-  } else {
-    vincode = document.querySelector('#VIN_vehicleStats1')?.nextElementSibling?.textContent?.split(' ')[0] || null
-  }
-  // console.log(vincode);
-  return vincode;
+    // console.log(vincode);
+    return vincode;
 }
 
 function extractLotnumber(url, lotDetailsArray) {
   let lotnumber;
-  if (url.startsWith('https://www.copart.com/lot/')) {
-    lotnumber = document.querySelector('#LotNumber')?.textContent;
-    if (!lotnumber) {
-      const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Lot Number:'));
-      lotnumber = lotDetail ? lotDetail.querySelector('.lot-details-value')?.textContent : null;
+    if (url.startsWith('https://www.copart.com/lot/')) {
+      lotnumber = document.querySelector('#LotNumber')?.textContent;
+      if (!lotnumber) {
+        const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Lot Number:'));
+        lotnumber = lotDetail ? lotDetail.querySelector('.lot-details-value')?.textContent : null;
+      }
+    }  else if (url.startsWith('https://www.iaai.com/')) {
+      // TODO: if this array is needed in other methods, use them as lotDetailsArray, just depending on the url
+      const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Stock #:'))
+      lotnumber = lotDetail.nextElementSibling?.textContent || null;
+    } else {
+      lotnumber = null;
     }
-  } else {
-    // TODO: if this array is needed in other methods, use them as lotDetailsArray, just depending on the url
-    const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Stock #:'))
-    lotnumber = lotDetail.nextElementSibling?.textContent || null;
-  }
-  // console.log(lotnumber);
-  return lotnumber;
+    // console.log(lotnumber);
+    return lotnumber;
 }
 
 
 function extractBuyNowPrice(url) {
-  let buyNowPrice;
   if (url.startsWith('https://www.copart.com/lot/')) {
     buyNowPrice = document.querySelector('.buyitnow-text span')?.textContent ||
                     document.querySelector('#buyItNowBtn')?.textContent.match(/\$\d{1,3}(?:,\d{3})*(?:\.\d{2})? USD/)[0]
-  } else {
+  } else if (url.startsWith('https://www.iaai.com/')) {
     // TODO: if this array is needed in other methods, use them as lotDetailsArray, just depending on the url
     const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Buy Now Price:'))
     buyNowPrice = lotDetail.nextElementSibling?.textContent.split(' ')[0] || null;
+  } else {
+    buyNowPrice = document.querySelector('.bid-buy__amount')?.textContent || null;
   }
   // console.log(buyNowPrice);
   return buyNowPrice;
@@ -95,9 +97,11 @@ function extractState(url) {
   let state;
   if (url.startsWith('https://www.copart.com/lot/')) {
     state = document.querySelector('.highlights-popover-cntnt span')?.textContent
-  } else {
+  } else if (url.startsWith('https://www.iaai.com/')) {
     // TODO: if this array is needed in other methods, use them as lotDetailsArray, just depending on the url
     state = document.querySelector('#hdnrunAndDrive_Ind').nextElementSibling.children[0].textContent
+  } else {
+    state = null;
   }
   // console.log(state);
   return state;
@@ -111,10 +115,12 @@ function extractOdometerValue(url, lotDetailsArray) {
       const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Odometer:'));
       odometerValue = lotDetail ? lotDetail.querySelector('.lot-details-value')?.textContent : null;
     }
-  } else {
+  } else if (url.startsWith('https://www.iaai.com/'))  {
     // TODO: if this array is needed in other methods, use them as lotDetailsArray, just depending on the url
     const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Odometer:'))
     odometerValue = lotDetail.nextElementSibling?.textContent || null;
+  } else {
+    odometerValue = document.querySelector('.OdometerInfo__container')?.textContent || null;
   }
   // console.log(odometerValue.replace(/\D/g, '') * 1.6)
   return odometerValue ? odometerValue.replace(/\D/g, '') * 1.6 : null;
@@ -129,9 +135,11 @@ function extractFuelType(url, lotDetailsArray) {
       const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Fuel:'));
       fuelType = lotDetail ? lotDetail.querySelector('.lot-details-value')?.textContent : null;
     }
-  } else {
+  } else if (url.startsWith('https://www.iaai.com/')) {
     const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Fuel Type:'))
     fuelType = lotDetail.nextElementSibling?.textContent || null;
+  } else {
+    fuelType = document.querySelector('.EngineInfo__fuel-type')?.textContent
   }
   // console.log(fuelType);
   return fuelType;
@@ -146,27 +154,64 @@ function extractGearbox(url, lotDetailsArray) {
       const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Transmission:'));
       gearbox = lotDetail ? lotDetail.querySelector('.lot-details-value')?.textContent : null;
     }
-  } else {
+  } else if (url.startsWith('https://www.iaai.com/')) {
     const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Transmission:'))
     gearbox = lotDetail.nextElementSibling?.textContent
     gearbox = sanitize(gearbox).split(' ')[0] || null;
+  } else {
+    let shortGearbox =  document.querySelector('.EngineInfo__transmission')?.textContent || null;
+    gearbox = (shortGearbox && shortGearbox == 'Auto') ? 'Automatic' : 'Manual'
   }
   // console.log(gearbox);
   return gearbox;
+}
+
+function extractKeys(url) {
+  let keys;
+  if (url.startsWith('https://www.copart.com/lot/')) {
+    keys = document.querySelector('[data-uname="lotdetailKeyvalue"]')?.textContent || null;
+  } else if (url.startsWith('https://www.iaai.com/')) {
+    keys = document.querySelector('#hdnkeysPresent_Ind')?.nextElementSibling.children[0].textContent || null;
+  } else {
+    keysNumber = document.querySelector('.dashboard-icon__label')?.textContent.split('')[3]
+    keys = keysNumber == '0' ? null : 'Yes'
+  }
+  // console.log(fuelType);
+  return keys;
 }
 
 function extractDrive(url, lotDetailsArray) {
   let drive;
   if (url.startsWith('https://www.copart.com/lot/')) {
     drive = document.querySelector('[data-uname="DriverValue"]')?.textContent;
-
     if (!drive) {
       const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Drive:'));
       drive = lotDetail ? lotDetail.querySelector('.lot-details-value')?.textContent : null;
     }
-  } else {
+  } else if (url.startsWith('https://www.iaai.com/')) {
     const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Drive Line Type:'))
     drive = lotDetail?.nextElementSibling?.textContent || null;
+  } else {
+    let shortDrive = document.querySelector('.DriveTrain__container')?.textContent.replace('•', '')
+    switch (shortDrive) {
+      case '2WD':
+        drive = "Two-Wheel Drive";
+        break;
+      case '4WD':
+        drive = "Four-Wheel Drive";
+        break;
+      case 'AWD':
+        drive = "All-Wheel Drive";
+        break;
+      case 'FWD':
+        drive = "Front-Wheel Drive";
+        break;
+      case 'RWD':
+        drive = "Rear-Wheel Drive";
+        break;
+      default:
+        drive = null;
+    }
   }
   // console.log(drive);
   return drive;
@@ -176,11 +221,13 @@ function extractDamage(url) {
   let carDamage;
   if (url.startsWith('https://www.copart.com/lot/')) {
     carDamage = document.querySelector('[data-uname="lotdetailPrimarydamagevalue"]')?.textContent || null
-  } else {
+  } else if (url.startsWith('https://www.iaai.com/')) {
     // TODO: use selector labels or items?
     const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Primary Damage:')).parentElement
     // const lotDetail = Array.from(document.querySelectorAll('.data-list__item')).find(element => element.querySelector('.data-list__label')?.textContent.includes('Primary Damage:'))
     carDamage = lotDetail.querySelector('.data-list__value')?.textContent
+  } else {
+    carDamage = null;
   }
   // console.log(carDamage);
   return carDamage;
@@ -194,8 +241,10 @@ function extractEngineType(url, lotDetailsArray) {
       const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Engine Type:'));
       engineType = lotDetail ? lotDetail.querySelector('.lot-details-value')?.textContent : null;
     }
-  } else {
+  } else if (url.startsWith('https://www.iaai.com/')) {
     engineType = document.querySelector('#hdnEngine_Ind').nextElementSibling?.textContent
+  } else {
+    engineType = document.querySelector('.EngineInfo__displacement')?.textContent + ' ' + document.querySelector('.EngineInfo__engine')?.textContent;
   }
   // console.log(engineType);
   return engineType;
@@ -209,11 +258,13 @@ function extractVehicleType(url) {
       const lotDetail = Array.from(document.querySelectorAll('strong')).find(element => element.textContent.trim() === 'Vehicle Type:')
       vehicleType = lotDetail ? lotDetail.parentElement?.textContent.trim().replace('Vehicle Type:', '').trim() : null;
     }
-  } else {
+  } else if (url.startsWith('https://www.iaai.com/')) {
     const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Vehicle:')).parentElement
     vehicleType = lotDetail.querySelector('.data-list__value')?.textContent
+  } else {
+    vehicleType = null;
   }
-  console.log(vehicleType);
+  // console.log(vehicleType);
   return vehicleType;
 }
 
@@ -223,13 +274,14 @@ function extractLocation(url) {
     location = `USA, ${sanitize(document.querySelector('[data-uname="lotdetailSaleinformationlocationvalue"]')?.textContent ||
                   document.querySelector('span[locationinfo]')?.textContent ) }` ||
                   null
-  } else {
+  } else if (url.startsWith('https://www.iaai.com/')) {
     // TODO: use selector labels or items?
     const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Selling Branch:')).parentElement
     // const lotDetail = Array.from(document.querySelectorAll('.data-list__item')).find(element => element.querySelector('.data-list__label')?.textContent.includes('Primary Damage:'))
     location = lotDetail.querySelector('.data-list__value')?.textContent
+  } else {
+    location = document.querySelector('[data-test-id="pickup-location-container"]')?.textContent || null;
   }
-  console.log(location);
   return location;
 }
 
@@ -251,7 +303,7 @@ function extractImages(url) {
         }
       });
     }
-  } else {
+  } else if (url.startsWith('https://www.iaai.com/')) {
     let imgElements = document.querySelector('#spacedthumbs1strow').querySelectorAll('img');
     urls = Array.from(imgElements).map(img => {
       let src = img.src.replace('&width=161&height=120', '&width=845&height=633');
@@ -260,6 +312,11 @@ function extractImages(url) {
       } else {
         return src;
       }
+    });
+  } else {
+    let imgElements = Array.from(document.querySelectorAll('.svfy_tip'))
+    urls = imgElements.map(element => {
+      return element.firstChild.src.replace('?size=w86h64', '');
     });
   }
   return urls;
@@ -299,25 +356,26 @@ document.getElementById('extractData').addEventListener('click', () => {
 
 function extractData() {
   const url = window.location.href;
-  if (!(url.startsWith('https://www.copart.com/lot/') || url.startsWith('https://www.iaai.com/'))) {
+  if (!(url.startsWith('https://www.copart.com/lot/') || url.startsWith('https://www.iaai.com/') || url.startsWith('https://search.manheim.com/'))) {
     return { error: 'This is not a Copart lot page.' };
   }
 
   const lotDetailsArray = Array.from(document.querySelectorAll('.lot-details-info'))
   // debugger;
   const data = {
-    title: sanitize(document.querySelector('h1')?.textContent.split(' ').slice(1).join(' ')),
-    year: parseInt(sanitize(document.querySelector('h1')?.textContent.split(' ', 2)[0] || document.querySelector('h1')?.textContent.split(' ', 2)[1])) || null,
+    title: sanitize(document.querySelector('h1')?.textContent.split(' ').slice(1).join(' ') || document.querySelector('.ListingTitle__title')?.textContent.split(' ').slice(1).join(' ')),
+    year: parseInt(sanitize(document.querySelector('h1')?.textContent.split(' ', 2)[0] || document.querySelector('h1')?.textContent.split(' ', 2)[1]) || document.querySelector('.ListingTitle__title')?.textContent.split(' ', 2)[0]) || null,
     vin_code: sanitize(extractVincode(url, lotDetailsArray)),
     lot_number: sanitize(extractLotnumber(url, lotDetailsArray)),
     bid_price: sanitize(document.querySelector('.bid-price')?.textContent) || 
-               sanitize(document.querySelector('[tool-tip-pop-over] .panel-content.clearfix .clearfix.pt-5.border-top-gray:nth-child(2) span')?.textContent),
+               sanitize(document.querySelector('[tool-tip-pop-over] .panel-content.clearfix .clearfix.pt-5.border-top-gray:nth-child(2) span')?.textContent) ||
+               sanitize(document.querySelector('.bid-buy__amount')?.textContent),
     buy_now_price: sanitize(extractBuyNowPrice(url)),
     state: sanitize(extractState(url)),
     millage: sanitize(extractOdometerValue(url, lotDetailsArray)),
     fuel_type: sanitize(extractFuelType(url, lotDetailsArray)),
     gearbox: sanitize(extractGearbox(url, lotDetailsArray)),
-    keys: sanitize(document.querySelector('[data-uname="lotdetailKeyvalue"]')?.textContent || document.querySelector('#hdnkeysPresent_Ind')?.nextElementSibling.children[0].textContent || null),
+    keys: sanitize(extractKeys(url)),
     drive_state: sanitize(extractDrive(url, lotDetailsArray)),
     damage: sanitize(extractDamage(url)),
     engine: sanitize(extractEngineType(url, lotDetailsArray)),
@@ -339,12 +397,14 @@ function parsedTextDate(url) {
                           document.querySelector('[data-uname="lotdetailUpcomingLotlink"]') ||
                           document.querySelector('[data-uname="lotdetailFuturelink"]') ||
                           document.querySelector('.text-blue.font_family_lato_bold.p-border-bottom-light-blue.p-cursor-pointer.p-text-nowrap');
-    date = dateElement?.textContent;
-  } else {
+    date = dateElement?.textContent || null;
+  } else if (url.startsWith('https://www.iaai.com/')) {
     const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Auction Date and Time:'))
     date = lotDetail.nextElementSibling?.textContent || null;
+  } else {
+    date = document.querySelector('[data-test-id="auction-start-date"]').nextElementSibling?.textContent || null;
   }
-  return date || null;
+  return date;
 }
 
 function parseDateString(dateString) {
@@ -369,9 +429,18 @@ function calculateAuctionDate(url) {
 
     const [days, hours, minutes] = matches.slice(1, 4).map(Number);
     return new Date(Date.now() + days * 86400000 + hours * 3600000 + minutes * 60000).toISOString();
-  } else {
+  } else if (url.startsWith('https://www.iaai.com/')) {
     // console.log(parseDateString(textDate));
     return parseDateString(textDate);
+  } else {
+    const timeLeftToAuction = document.querySelector('.bboEndStartTime')?.textContent
+    if (!timeLeftToAuction) return null;
+
+    const matches = timeLeftToAuction.match(/(\d+)d (\d+)h (\d+)m/);
+    if (!matches) return null;
+
+    const [days, hours, minutes] = matches.slice(1, 4).map(Number);
+    return new Date(Date.now() + days * 86400000 + hours * 3600000 + minutes * 60000).toISOString();
   }
 }
 
