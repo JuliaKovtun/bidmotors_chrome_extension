@@ -357,7 +357,7 @@ document.getElementById('extractData').addEventListener('click', () => {
 function extractData() {
   const url = window.location.href;
   if (!(url.startsWith('https://www.copart.com/lot/') || url.startsWith('https://www.iaai.com/') || url.startsWith('https://search.manheim.com/'))) {
-    return { error: 'This is not a Copart lot page.' };
+    return { error: 'This is not a Copart/IAAI/Manheim lot page.' };
   }
 
   const lotDetailsArray = Array.from(document.querySelectorAll('.lot-details-info'))
