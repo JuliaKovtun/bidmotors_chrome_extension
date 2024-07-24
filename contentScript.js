@@ -523,8 +523,11 @@
     const observer = new MutationObserver(async (mutations, observer) => {
       const targetElement = await findWhereToInsertButton();
       if (targetElement) {
+        const sendRequestBtnExists = document.getElementsByClassName("send-to-bidmotors-btn")[0];
+        if (!sendRequestBtnExists) {
+          newTabLoaded();
+        }
         observer.disconnect();
-        newTabLoaded();
       }
     });
   
