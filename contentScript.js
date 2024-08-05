@@ -277,9 +277,10 @@
         }
       });
     } else {
+      // TODO: if image_url statr_with 'manheim.com' -> .replace('?size=w86h64', ''), else .replace('_thumb', '')
       let imgElements = Array.from(document.querySelectorAll('.svfy_tip'))
       urls = imgElements.map(element => {
-        return element.firstChild.src.replace('?size=w86h64', '');
+        return element.firstChild.src?.replace('?size=w86h64', '');
       });
     }
     return urls;
@@ -489,7 +490,7 @@
     });
   }
 
-  let isButtonAdded = false;
+  var isButtonAdded = false;
 
   const findWhereToInsertButton = async () => {
     if (window.location.href.startsWith('https://www.copart.com/lot/')) {
@@ -504,12 +505,13 @@
   };
 
   const addBidmotorsButton = async () => {
-    if (isButtonAdded) {
+
+    if (isButtonAdded && document.querySelector(".send-to-bidmotors-btn")) {
       console.log('Button already added, skipping');
       return;
     }
 
-    const targetElement = await findWhereToInsertButton();
+    let targetElement = await findWhereToInsertButton();
     if (targetElement) {
       const sendRequestBtnExists = document.querySelector(".send-to-bidmotors-btn");
 
@@ -522,8 +524,10 @@
 
         targetElement.insertAdjacentElement('beforebegin', sendRequestBtn);
         sendRequestBtn.addEventListener("click", sendData);
-        console.log('Button added by newTabLoaded');
-        isButtonAdded = true;
+        if (document.querySelector(".send-to-bidmotors-btn")){
+          console.log('Button added by newTabLoaded');
+          isButtonAdded = true;
+        }
       } else {
         console.log('Button already exists in the DOM');
       }
@@ -535,6 +539,7 @@
   const observePageLoad = () => {
     const observer = new MutationObserver(async (mutations, observer) => {
       if (isButtonAdded) {
+        console.log("isButtonAdded true")
         observer.disconnect();
         return;
       }
@@ -555,12 +560,14 @@
   };
 
   chrome.runtime.onMessage.addListener((obj, sender, response) => {
-    if (document.readyState === 'complete' && (window.location.href.startsWith('https://www.copart.com/lot/') || window.location.href.startsWith('https://www.iaai.com/'))) {
-      addBidmotorsButton();
-    } else if (window.location.href.startsWith('https://www.copart.com/lot/') || window.location.href.startsWith('https://www.iaai.com/')) {
+    // console.log('Message from background');
+    isButtonAdded = false;
+    if (window.location.href.startsWith('https://www.copart.com/') || window.location.href.startsWith('https://www.iaai.com/')) {
       window.addEventListener('load', addBidmotorsButton);
+      // console.log("window.addEventListener('load', addBidmotorsButton);");
       observePageLoad();
     } else {
+      window.addEventListener('load', addBidmotorsButton);
       observePageLoad();
     }
   });

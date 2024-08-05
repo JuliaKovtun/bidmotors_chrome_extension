@@ -35,7 +35,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (tab.url && (tab.url.includes("copart") || tab.url.includes("iaai") || tab.url.includes("manheim"))) {
+  if (changeInfo.status === 'complete' && tab.url && (tab.url.includes("copart") || tab.url.includes("iaai") || tab.url.includes("manheim"))) {
     chrome.tabs.sendMessage(tabId, {});
   }
 });
