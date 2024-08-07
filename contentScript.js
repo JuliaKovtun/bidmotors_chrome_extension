@@ -32,7 +32,7 @@
     }  else if (url.startsWith('https://www.iaai.com/')) {
       // TODO: if this array is needed in other methods, use them as lotDetailsArray, just depending on the url
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Stock #:'))
-      lotnumber = lotDetail.nextElementSibling?.textContent || null;
+      lotnumber = lotDetail?.nextElementSibling?.textContent || null;
     } else {
       lotnumber = null;
     }
@@ -48,7 +48,7 @@
     } else if (url.startsWith('https://www.iaai.com/')) {
       // TODO: if this array is needed in other methods, use them as lotDetailsArray, just depending on the url
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Buy Now Price:'))
-      buyNowPrice = lotDetail.nextElementSibling?.textContent.split(' ')[0] || null;
+      buyNowPrice = lotDetail?.nextElementSibling?.textContent.split(' ')[0] || null;
     } else {
       buyNowPrice = document.querySelector('.bid-buy__amount')?.textContent || null;
     }
@@ -81,7 +81,7 @@
     } else if (url.startsWith('https://www.iaai.com/'))  {
       // TODO: if this array is needed in other methods, use them as lotDetailsArray, just depending on the url
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Odometer:'))
-      odometerValue = lotDetail.nextElementSibling?.textContent || null;
+      odometerValue = lotDetail?.nextElementSibling?.textContent || null;
     } else {
       odometerValue = document.querySelector('.OdometerInfo__container')?.textContent || null;
     }
@@ -100,7 +100,7 @@
       }
     } else if (url.startsWith('https://www.iaai.com/')) {
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Fuel Type:'))
-      fuelType = lotDetail.nextElementSibling?.textContent || null;
+      fuelType = lotDetail?.nextElementSibling?.textContent || null;
     } else {
       fuelType = document.querySelector('.EngineInfo__fuel-type')?.textContent
     }
@@ -119,7 +119,7 @@
       }
     } else if (url.startsWith('https://www.iaai.com/')) {
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Transmission:'))
-      gearbox = lotDetail.nextElementSibling?.textContent
+      gearbox = lotDetail?.nextElementSibling?.textContent
       gearbox = sanitize(gearbox).split(' ')[0] || null;
     } else {
       let shortGearbox =  document.querySelector('.EngineInfo__transmission')?.textContent || null;
@@ -188,7 +188,7 @@
       // TODO: use selector labels or items?
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Primary Damage:')).parentElement
       // const lotDetail = Array.from(document.querySelectorAll('.data-list__item')).find(element => element.querySelector('.data-list__label')?.textContent.includes('Primary Damage:'))
-      carDamage = lotDetail.querySelector('.data-list__value')?.textContent
+      carDamage = lotDetail?.querySelector('.data-list__value')?.textContent
     } else {
       carDamage = null;
     }
@@ -223,7 +223,7 @@
       }
     } else if (url.startsWith('https://www.iaai.com/')) {
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Vehicle:')).parentElement
-      vehicleType = lotDetail.querySelector('.data-list__value')?.textContent
+      vehicleType = lotDetail?.querySelector('.data-list__value')?.textContent
     } else {
       vehicleType = null;
     }
@@ -241,7 +241,7 @@
       // TODO: use selector labels or items?
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Selling Branch:')).parentElement
       // const lotDetail = Array.from(document.querySelectorAll('.data-list__item')).find(element => element.querySelector('.data-list__label')?.textContent.includes('Primary Damage:'))
-      location = lotDetail.querySelector('.data-list__value')?.textContent
+      location = lotDetail?.querySelector('.data-list__value')?.textContent
     } else {
       location = document.querySelector('[data-test-id="pickup-location-container"]')?.textContent || null;
     }
@@ -396,7 +396,7 @@
       date = dateElement?.textContent || null;
     } else if (url.startsWith('https://www.iaai.com/')) {
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Auction Date and Time:'))
-      date = lotDetail.nextElementSibling?.textContent || null;
+      date = lotDetail?.nextElementSibling?.textContent || null;
     } else {
       date = document.querySelector('[data-test-id="auction-start-date"]').nextElementSibling?.textContent || null;
     }
@@ -427,7 +427,11 @@
       return new Date(Date.now() + days * 86400000 + hours * 3600000 + minutes * 60000).toISOString();
     } else if (url.startsWith('https://www.iaai.com/')) {
       // console.log(parseDateString(textDate));
-      return parseDateString(textDate);
+      if (textDate == 'Not Ready for Sale') {
+        return null;
+      } else  {
+        return parseDateString(textDate);
+      }
     } else {
       const timeLeftToAuction = document.querySelector('.bboEndStartTime')?.textContent
       if (!timeLeftToAuction) return null;
