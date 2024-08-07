@@ -441,12 +441,37 @@
     } else {
       const timeLeftToAuction = document.querySelector('.bboEndStartTime')?.textContent
       if (!timeLeftToAuction) return null;
+      // const matches = timeLeftToAuction.match(/(?:(\d+)d)?\s*(?:(\d+)h)?\s*(?:(\d+)m)?/);
+      // if (!matches) return null;
+      
+      // let days = 0, hours = 0, minutes = 0;
+      // if (matches) {
+      //   days = matches[1] ? parseInt(matches[1]) : 0;
+      //   hours = matches[2] ? parseInt(matches[2]) : 0;
+      //   minutes = matches[3] ? parseInt(matches[3]) : 0;
+      // }
+      // return new Date(Date.now() + days * 86400000 + hours * 3600000 + minutes * 60000)?.toISOString();
+      
+      // TODO: check
+      
+      let matches = textDate.match(/(\d{2})\/(\d{2})\s*-\s*(\d{1,2}):(\d{2})(am|pm)/);
 
-      const matches = timeLeftToAuction.match(/(\d+)d (\d+)h (\d+)m/);
-      if (!matches) return null;
+      if (matches) {
+        let month = parseInt(matches[1], 10);
+        let day = parseInt(matches[2], 10);
+        let hour = parseInt(matches[3], 10);
+        let minute = parseInt(matches[4], 10);
+        let period = matches[5];
 
-      const [days, hours, minutes] = matches.slice(1, 4).map(Number);
-      return new Date(Date.now() + days * 86400000 + hours * 3600000 + minutes * 60000).toISOString();
+        if (period === "pm" && hour < 12) {
+            hour += 12;
+        } else if (period === "am" && hour === 12) {
+            hour = 0;
+        }
+
+        let year = new Date().getFullYear();
+        return new Date(year, month - 1, day, hour, minute);
+      }
     }
   }
 
