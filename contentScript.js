@@ -424,7 +424,7 @@
 
   function calculateAuctionDate(url) {
     const textDate = parsedTextDate(url);
-    if (['Future', 'Upcoming Lot', null].includes(textDate)) return null;
+    if (['Future', 'Upcoming Lot', null, 'Not Ready for Sale'].includes(textDate)) return null;
 
     if (url.startsWith('https://www.copart.com/lot/')) {
       const timeLeftToAuction = document.querySelector('[data-uname="lotdetailSaleinformationtimeleftvalue"]')?.textContent;
@@ -437,11 +437,7 @@
       return new Date(Date.now() + days * 86400000 + hours * 3600000 + minutes * 60000).toISOString();
     } else if (url.startsWith('https://www.iaai.com/')) {
       // console.log(parseDateString(textDate));
-      if (textDate == 'Not Ready for Sale') {
-        return null;
-      } else  {
-        return parseDateString(textDate);
-      }
+      return parseDateString(textDate);
     } else {
       const timeLeftToAuction = document.querySelector('.bboEndStartTime')?.textContent
       if (!timeLeftToAuction) return null;
@@ -476,7 +472,7 @@
     data.phone_number = phoneNumber;
 
     console.log('Data: ' + data)
-    fetch('http://localhost:3000/admin/create_from_copart_website', {
+    fetch('https://bidmotors.bg/admin/create_from_copart_website', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

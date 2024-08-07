@@ -322,6 +322,15 @@ function extractImages(url) {
   return urls;
 }
 
+function extractVideoUrl(url) {
+  if (url.startsWith('https://www.iaai.com/')) {
+    const vlink = $("#hdnVRDUrl").val();
+    return vlink || null;
+  } else {
+    null;
+  }
+};
+
 document.getElementById('extractData').addEventListener('click', () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     chrome.scripting.executeScript({
@@ -384,7 +393,8 @@ function extractData() {
     location: sanitize(extractLocation(url)),
     image_urls: extractImages(url),
     website_url: window.location.href,
-    vehicle_type: sanitize(extractVehicleType(url))
+    vehicle_type: sanitize(extractVehicleType(url)),
+    video_url: extractVideoUrl(url)
   };
 
   return data;
@@ -418,7 +428,7 @@ function parseDateString(dateString) {
 
 function calculateAuctionDate(url) {
   const textDate = parsedTextDate(url);
-  if (['Future', 'Upcoming Lot', null].includes(textDate)) return null;
+  if (['Future', 'Upcoming Lot', null, 'Not Ready for Sale'].includes(textDate)) return null;
 
   if (url.startsWith('https://www.copart.com/lot/')) {
     const timeLeftToAuction = document.querySelector('[data-uname="lotdetailSaleinformationtimeleftvalue"]')?.textContent;
