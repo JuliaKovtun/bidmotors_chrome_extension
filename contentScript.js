@@ -380,11 +380,21 @@
       image_urls: await extractImages(url),
 
       website_url: window.location.href,
-      vehicle_type: sanitize(await extractVehicleType(url))
+      vehicle_type: sanitize(await extractVehicleType(url)),
+      video_url: await extractVideoUrl(url)
     };
 
     return data;
   }
+
+  async function extractVideoUrl(url) {
+    if (url.startsWith('https://www.iaai.com/')) {
+      const vlink = $("#hdnVRDUrl").val();
+      return vlink || null;
+    } else {
+      null;
+    }
+  };
 
   function parsedTextDate(url) {
     let date;
@@ -466,7 +476,7 @@
     data.phone_number = phoneNumber;
 
     console.log('Data: ' + data)
-    fetch('https://bidmotors.bg/admin/create_from_copart_website', {
+    fetch('http://localhost:3000/admin/create_from_copart_website', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

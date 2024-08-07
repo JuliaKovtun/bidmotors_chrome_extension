@@ -17,7 +17,7 @@
   "content_scripts": [
     {
       "matches": ["https://*.copart.com/*", "https://*.iaai.com/*", "https://*.manheim.com/*"],
-      "js": ["popup.js", "contentScript.js"]
+      "js": ["popup.js", "contentScript.js", "jquery-3.7.1.min.js"]
     }
   ],
   "web_accessible_resources": [
