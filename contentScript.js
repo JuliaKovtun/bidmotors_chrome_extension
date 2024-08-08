@@ -277,10 +277,17 @@
         }
       });
     } else {
-      // TODO: if image_url statr_with 'manheim.com' -> .replace('?size=w86h64', ''), else .replace('_thumb', '')
-      let imgElements = Array.from(document.querySelectorAll('.svfy_tip'))
+      let imgElements = Array.from(document.getElementsByClassName('svfy_scroller')[0]?.children)
+
       urls = imgElements.map(element => {
-        return element.firstChild.src?.replace('?size=w86h64', '');
+        img_url = element.querySelector('img').src
+        if (img_url?.includes('images.cdn.manheim')) {
+          return img_url?.replace('?size=w86h64', '');
+        } else if (img_url?.includes('_thumb')) {
+          return img_url?.replace('_thumb', '');
+        } else {
+          return img_url;
+        }
       });
     }
     return urls;
