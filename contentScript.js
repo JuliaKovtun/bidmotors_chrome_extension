@@ -293,6 +293,12 @@
     return urls;
   }
 
+  async function extractThreeSixtyUrl(url) {
+    if (url.startsWith('https://www.iaai.com/') && document.querySelector('.vehicle-image__thumb--360')) {
+      return document.getElementById('360imagesModal')?.querySelector('iframe')?.src
+    }
+  }
+
   async function getPhoneNumber() {
     return new Promise((resolve, reject) => {
       chrome.storage.local.get(['phoneNumber'], function(result) {
@@ -388,7 +394,8 @@
 
       website_url: window.location.href,
       vehicle_type: sanitize(await extractVehicleType(url)),
-      video_url: await extractVideoUrl(url)
+      video_url: await extractVideoUrl(url),
+      url_360: await extractThreeSixtyUrl(url)
     };
 
     return data;

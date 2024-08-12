@@ -339,6 +339,12 @@ function extractVideoUrl(url) {
   }
 };
 
+function extractThreeSixtyUrl(url) {
+  if (url.startsWith('https://www.iaai.com/') && document.querySelector('.vehicle-image__thumb--360')) {
+    return document.getElementById('360imagesModal')?.querySelector('iframe')?.src
+  }
+}
+
 document.getElementById('extractData').addEventListener('click', () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     chrome.scripting.executeScript({
@@ -378,7 +384,6 @@ function extractData() {
   }
 
   const lotDetailsArray = Array.from(document.querySelectorAll('.lot-details-info'))
-  // debugger;
   const data = {
     title: sanitize(document.querySelector('h1')?.textContent.split(' ').slice(1).join(' ') || document.querySelector('.ListingTitle__title')?.textContent.split(' ').slice(1).join(' ')),
     year: parseInt(sanitize(document.querySelector('h1')?.textContent.split(' ', 2)[0] || document.querySelector('h1')?.textContent.split(' ', 2)[1]) || document.querySelector('.ListingTitle__title')?.textContent.split(' ', 2)[0]) || null,
@@ -402,7 +407,8 @@ function extractData() {
     image_urls: extractImages(url),
     website_url: window.location.href,
     vehicle_type: sanitize(extractVehicleType(url)),
-    video_url: extractVideoUrl(url)
+    video_url: extractVideoUrl(url),
+    url_360: extractThreeSixtyUrl(url)
   };
 
   return data;
