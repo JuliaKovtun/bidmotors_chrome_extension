@@ -395,7 +395,7 @@
       website_url: window.location.href,
       vehicle_type: sanitize(await extractVehicleType(url)),
       video_url: await extractVideoUrl(url),
-      url_360: await extractThreeSixtyUrl(url)
+      three_sixty_view_url: await extractThreeSixtyUrl(url)
     };
 
     return data;

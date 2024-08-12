@@ -408,7 +408,7 @@ function extractData() {
     website_url: window.location.href,
     vehicle_type: sanitize(extractVehicleType(url)),
     video_url: extractVideoUrl(url),
-    url_360: extractThreeSixtyUrl(url)
+    three_sixty_view_url: extractThreeSixtyUrl(url)
   };
 
   return data;
