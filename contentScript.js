@@ -1,4 +1,5 @@
 (() => {
+  // TODO: Refactor into classes using polymorphism
   function sanitize(text) {
     if (typeof text !== 'string') return text;
     return text.replace(/\n/g, '').trim();
@@ -17,10 +18,10 @@
   async function extractYear(url) {
     let year;
     if (url.startsWith('https://www.auto1.com/')) {
-      year = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Build year')).nextElementSibling.textContent.trim();
+      year = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Build year'))?.nextElementSibling?.textContent.trim();
     } else {
-      year = document.querySelector('h1')?.textContent.split(' ', 2)[0] || 
-              document.querySelector('h1')?.textContent.split(' ', 2)[1] || 
+      year = document.querySelector('h1')?.textContent.split(' ', 2)[0] ||
+              document.querySelector('h1')?.textContent.split(' ', 2)[1] ||
               document.querySelector('.ListingTitle__title')?.textContent.split(' ', 2)[0]
     }
     return year;
@@ -41,7 +42,6 @@
     } else {
       vincode = document.querySelector('.Vin__container')?.textContent || null;
     }
-    // console.log(vincode);
     return vincode;
   }
 
@@ -62,7 +62,6 @@
     } else {
       lotnumber = null;
     }
-    // console.log(lotnumber);
     return lotnumber;
   }
 
@@ -76,28 +75,26 @@
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Buy Now Price:'))
       buyNowPrice = lotDetail?.nextElementSibling?.textContent.split(' ')[0] || null;
     } else if (url.startsWith('https://www.auto1.com/')) {
-      buyNowPrice = document.querySelector('.buy-now-block__price-value')?.childNodes[0]?.textContent?.trim() || null;
+      buyNowPrice = document.querySelector('.buy-now-block__price-value')?.childNodes[0]?.textContent?.trim() ||
+        document.querySelector("div[data-qa-id='ip_price_value']").textContent || null;
     } else {
       buyNowPrice = document.querySelector('.bid-buy__amount')?.textContent || null;
     }
-    // console.log(buyNowPrice);
     return buyNowPrice;
   }
-
 
   async function extractBidPrice(url) {
     let bidPrice;
 
     if (url.startsWith('https://www.auto1.com/')) {
-      bidPrice = document.querySelector('.money-value')?.firstChild.textContent
+      bidPrice = document.querySelector('.money-value')?.firstChild?.textContent
     } else {
-      bidPrice = document.querySelector('.bid-price')?.textContent || 
+      bidPrice = document.querySelector('.bid-price')?.textContent ||
         document.querySelector('[tool-tip-pop-over] .panel-content.clearfix .clearfix.pt-5.border-top-gray:nth-child(2) span')?.textContent ||
         document.querySelector('.bid-buy__amount')?.textContent
     }
     return bidPrice;
   }
-
 
   // TODO: No state on AUTO1 ?
   async function extractState(url) {
@@ -105,12 +102,10 @@
     if (url.startsWith('https://www.copart.com/lot/')) {
       state = document.querySelector('.highlights-popover-cntnt span')?.textContent
     } else if (url.startsWith('https://www.iaai.com/')) {
-      // TODO: if this array is needed in other methods, use them as lotDetailsArray, just depending on the url
       state = document.querySelector('#hdnrunAndDrive_Ind').nextElementSibling.children[0].textContent
     } else {
       state = null;
     }
-    // console.log(state);
     return state;
   }
 
@@ -123,18 +118,16 @@
         odometerValue = lotDetail ? lotDetail.querySelector('.lot-details-value')?.textContent : null;
       }
     } else if (url.startsWith('https://www.iaai.com/'))  {
-      // TODO: if this array is needed in other methods, use them as lotDetailsArray, just depending on the url
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Odometer:'))
       odometerValue = lotDetail?.nextElementSibling?.textContent || null;
     } else if (url.startsWith('https://www.auto1.com/')) {
-      odometerValue = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Odometer reading')).nextElementSibling?.textContent.replace(/\D/g, '');
-      
+      odometerValue = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Odometer reading'))?.nextElementSibling?.textContent.replace(/\D/g, '');
+
       return odometerValue;
     } else {
       odometerValue = document.querySelector('.OdometerInfo__container')?.textContent || null;
     }
-    // console.log(odometerValue.replace(/\D/g, '') * 1.6)
-    
+
     return odometerValue ? odometerValue.replace(/\D/g, '') * 1.6 : null;
   }
 
@@ -151,11 +144,10 @@
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Fuel Type:'))
       fuelType = lotDetail?.nextElementSibling?.textContent || null;
     } else if (url.startsWith('https://www.auto1.com/')) {
-      fuelType = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Fuel type')).nextElementSibling?.textContent;
+      fuelType = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Fuel type'))?.nextElementSibling?.textContent;
     } else {
       fuelType = document.querySelector('.EngineInfo__fuel-type')?.textContent
     }
-    // console.log(fuelType);
     return fuelType;
   }
 
@@ -173,12 +165,11 @@
       gearbox = lotDetail?.nextElementSibling?.textContent
       gearbox = sanitize(gearbox).split(' ')[0] || null;
     } else if (url.startsWith('https://www.auto1.com/')) {
-      gearbox = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Gear box')).nextElementSibling?.textContent;
+      gearbox = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Gear box'))?.nextElementSibling?.textContent;
     } else {
       let shortGearbox =  document.querySelector('.EngineInfo__transmission')?.textContent || null;
       gearbox = (shortGearbox && shortGearbox == 'Auto') ? 'Automatic' : 'Manual'
     }
-    // console.log(gearbox);
     return gearbox;
   }
 
@@ -189,13 +180,12 @@
     } else if (url.startsWith('https://www.iaai.com/')) {
       keys = document.querySelector('#hdnkeysPresent_Ind')?.nextElementSibling.children[0].textContent || null;
     } else if (url.startsWith('https://www.auto1.com/')) {
-      keysNumber = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Keys')).nextElementSibling?.textContent;
+      keysNumber = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Keys'))?.nextElementSibling?.textContent;
       keys = keysNumber == '0' ? null : 'YES'
     } else {
       keysNumber = document.querySelector('.dashboard-icon__label')?.textContent.split('')[3]
       keys = keysNumber == '0' ? null : 'YES'
     }
-    // console.log(fuelType);
     return keys;
   }
 
@@ -233,7 +223,6 @@
           drive = null;
       }
     }
-    // console.log(drive);
     return drive;
   }
 
@@ -268,7 +257,7 @@
     } else if (url.startsWith('https://www.iaai.com/')) {
       engineType = document.querySelector('#hdnEngine_Ind').nextElementSibling?.textContent
     } else if (url.startsWith('https://www.auto1.com/')) {
-      engineType = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Cylinder capacity')).nextElementSibling?.textContent;
+      engineType = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Cylinder capacity'))?.nextElementSibling?.textContent;
     } else {
       engineType = document.querySelector('.EngineInfo__displacement')?.textContent + ' ' + document.querySelector('.EngineInfo__engine')?.textContent;
     }
@@ -289,7 +278,7 @@
     } else {
       vehicleType = null;
     }
-    // console.log(vehicleType);
+
     return vehicleType;
   }
 
@@ -384,7 +373,7 @@
 
   function showNotification(message) {
     let notificationBanner = document.getElementById('notificationBannerBidmotors');
-    // debugger;
+
     if (!notificationBanner) {
       notificationBanner = document.createElement('div');
       notificationBanner.id = 'notificationBannerBidmotors';
@@ -468,7 +457,6 @@
       video_url: await extractVideoUrl(url),
       three_sixty_view_url: await extractThreeSixtyUrl(url)
     };
-    // debugger;
 
     return data;
   }
