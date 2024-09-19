@@ -1,7 +1,7 @@
 .send-to-bidmotors-btn {
   background-color: #4CAF50;
   border: none;
-  color: white;
+  color: white !important;
   padding: 6px 15px;
   text-align: center;
   text-decoration: none;
@@ -10,6 +10,12 @@
   margin: 0px 20px;
   cursor: pointer;
   border-radius: 4px;
+}
+
+.auto1-button {
+  float: right;
+  margin-top: 10px;
+  margin-right: 0px;
 }
 
 .dropdown {
@@ -24,7 +30,7 @@
   background-color: #45a049;
 }
 
-.notification-banner {
+.notification-banner-bidmotors {
   display: none;
   position: fixed;
   margin-top: 20px;

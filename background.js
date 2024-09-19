@@ -16,7 +16,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // https://bidmotors.bg/admin/create_from_copart_website       Production
     // http://104.248.243.255/admin/create_from_copart_website     Staging
     // http://localhost:3000/admin/create_from_copart_website      Development
-    fetch('https://bidmotors.bg/admin/create_from_copart_website', {
+    fetch('http://localhost:3000/admin/create_from_copart_website', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -35,7 +35,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === 'complete' && tab.url && (tab.url.includes("copart") || tab.url.includes("iaai") || tab.url.includes("manheim"))) {
+  if (changeInfo.status === 'complete' && tab.url && (tab.url.includes("copart") || tab.url.includes("iaai") || tab.url.includes("manheim") || tab.url.includes("auto1"))) {
     chrome.tabs.sendMessage(tabId, {});
   }
 });
