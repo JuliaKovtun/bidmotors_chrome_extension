@@ -1,7 +1,30 @@
 (() => {
+  // TODO: Refactor into classes using polymorphism
   function sanitize(text) {
     if (typeof text !== 'string') return text;
     return text.replace(/\n/g, '').trim();
+  }
+
+  async function extractTitle(url) {
+    let title;
+    if (url.startsWith('https://www.auto1.com/')) {
+      title = document.querySelector('.car-info-title')?.children[0]?.textContent;
+    } else {
+      title = document.querySelector('h1')?.textContent.split(' ').slice(1).join(' ') || document.querySelector('.ListingTitle__title')?.textContent.split(' ').slice(1).join(' ')
+    }
+    return title;
+  }
+
+  async function extractYear(url) {
+    let year;
+    if (url.startsWith('https://www.auto1.com/')) {
+      year = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Build year'))?.nextElementSibling?.textContent.trim();
+    } else {
+      year = document.querySelector('h1')?.textContent.split(' ', 2)[0] ||
+              document.querySelector('h1')?.textContent.split(' ', 2)[1] ||
+              document.querySelector('.ListingTitle__title')?.textContent.split(' ', 2)[0]
+    }
+    return year;
   }
 
   async function extractVincode(url, lotDetailsArray) {
@@ -14,10 +37,11 @@
       }
     } else if (url.startsWith('https://www.iaai.com/')) {
       vincode = document.querySelector('#VIN_vehicleStats1')?.nextElementSibling?.textContent?.split(' ')[0] || null
+    } else if (url.startsWith('https://www.auto1.com/')) {
+      vincode = [...document.querySelectorAll('td')].find(td => td.textContent.includes('VIN'))?.nextElementSibling?.textContent;
     } else {
       vincode = document.querySelector('.Vin__container')?.textContent || null;
     }
-    // console.log(vincode);
     return vincode;
   }
 
@@ -33,10 +57,11 @@
       // TODO: if this array is needed in other methods, use them as lotDetailsArray, just depending on the url
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Stock #:'))
       lotnumber = lotDetail?.nextElementSibling?.textContent || null;
+    } else if (url.startsWith('https://www.auto1.com/')) {
+      lotnumber = document.querySelector('.stock-number-value')?.textContent;
     } else {
       lotnumber = null;
     }
-    // console.log(lotnumber);
     return lotnumber;
   }
 
@@ -55,21 +80,32 @@
     } else {
       buyNowPrice = document.querySelector('.bid-buy__amount')?.textContent || null;
     }
-    // console.log(buyNowPrice);
     return buyNowPrice;
   }
 
+  async function extractBidPrice(url) {
+    let bidPrice;
+
+    if (url.startsWith('https://www.auto1.com/')) {
+      bidPrice = document.querySelector('.money-value')?.firstChild?.textContent
+    } else {
+      bidPrice = document.querySelector('.bid-price')?.textContent ||
+        document.querySelector('[tool-tip-pop-over] .panel-content.clearfix .clearfix.pt-5.border-top-gray:nth-child(2) span')?.textContent ||
+        document.querySelector('.bid-buy__amount')?.textContent
+    }
+    return bidPrice;
+  }
+
+  // TODO: No state on AUTO1 ?
   async function extractState(url) {
     let state;
     if (url.startsWith('https://www.copart.com/lot/')) {
       state = document.querySelector('.highlights-popover-cntnt span')?.textContent
     } else if (url.startsWith('https://www.iaai.com/')) {
-      // TODO: if this array is needed in other methods, use them as lotDetailsArray, just depending on the url
       state = document.querySelector('#hdnrunAndDrive_Ind').nextElementSibling.children[0].textContent
     } else {
       state = null;
     }
-    // console.log(state);
     return state;
   }
 
@@ -82,13 +118,16 @@
         odometerValue = lotDetail ? lotDetail.querySelector('.lot-details-value')?.textContent : null;
       }
     } else if (url.startsWith('https://www.iaai.com/'))  {
-      // TODO: if this array is needed in other methods, use them as lotDetailsArray, just depending on the url
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Odometer:'))
       odometerValue = lotDetail?.nextElementSibling?.textContent || null;
+    } else if (url.startsWith('https://www.auto1.com/')) {
+      odometerValue = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Odometer reading'))?.nextElementSibling?.textContent.replace(/\D/g, '');
+
+      return odometerValue;
     } else {
       odometerValue = document.querySelector('.OdometerInfo__container')?.textContent || null;
     }
-    // console.log(odometerValue.replace(/\D/g, '') * 1.6)
+
     return odometerValue ? odometerValue.replace(/\D/g, '') * 1.6 : null;
   }
 
@@ -104,10 +143,11 @@
     } else if (url.startsWith('https://www.iaai.com/')) {
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Fuel Type:'))
       fuelType = lotDetail?.nextElementSibling?.textContent || null;
+    } else if (url.startsWith('https://www.auto1.com/')) {
+      fuelType = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Fuel type'))?.nextElementSibling?.textContent;
     } else {
       fuelType = document.querySelector('.EngineInfo__fuel-type')?.textContent
     }
-    // console.log(fuelType);
     return fuelType;
   }
 
@@ -124,11 +164,12 @@
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Transmission:'))
       gearbox = lotDetail?.nextElementSibling?.textContent
       gearbox = sanitize(gearbox).split(' ')[0] || null;
+    } else if (url.startsWith('https://www.auto1.com/')) {
+      gearbox = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Gear box'))?.nextElementSibling?.textContent;
     } else {
       let shortGearbox =  document.querySelector('.EngineInfo__transmission')?.textContent || null;
       gearbox = (shortGearbox && shortGearbox == 'Auto') ? 'Automatic' : 'Manual'
     }
-    // console.log(gearbox);
     return gearbox;
   }
 
@@ -138,14 +179,17 @@
       keys = document.querySelector('[data-uname="lotdetailKeyvalue"]')?.textContent || null;
     } else if (url.startsWith('https://www.iaai.com/')) {
       keys = document.querySelector('#hdnkeysPresent_Ind')?.nextElementSibling.children[0].textContent || null;
+    } else if (url.startsWith('https://www.auto1.com/')) {
+      keysNumber = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Keys'))?.nextElementSibling?.textContent;
+      keys = keysNumber == '0' ? null : 'YES'
     } else {
       keysNumber = document.querySelector('.dashboard-icon__label')?.textContent.split('')[3]
-      keys = keysNumber == '0' ? null : 'Yes'
+      keys = keysNumber == '0' ? null : 'YES'
     }
-    // console.log(fuelType);
     return keys;
   }
 
+  // TODO: No drive on AUTO1 ?
   async function extractDrive(url, lotDetailsArray) {
     let drive;
     if (url.startsWith('https://www.copart.com/lot/')) {
@@ -179,7 +223,6 @@
           drive = null;
       }
     }
-    // console.log(drive);
     return drive;
   }
 
@@ -192,10 +235,14 @@
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Primary Damage:')).parentElement
       // const lotDetail = Array.from(document.querySelectorAll('.data-list__item')).find(element => element.querySelector('.data-list__label')?.textContent.includes('Primary Damage:'))
       carDamage = lotDetail?.querySelector('.data-list__value')?.textContent
+    } else if (url.startsWith('https://www.auto1.com/')) {
+      table = document.querySelector('div[data-testid="area-table"]');
+      carDamage = Array.from(table?.children).map(row => row.firstElementChild?.textContent.trim()).filter(part => part);
+      carDamage.shift();
+      carDamage = carDamage.join(', ');
     } else {
       carDamage = null;
     }
-    // console.log(carDamage);
     return carDamage;
   }
 
@@ -209,10 +256,11 @@
       }
     } else if (url.startsWith('https://www.iaai.com/')) {
       engineType = document.querySelector('#hdnEngine_Ind').nextElementSibling?.textContent
+    } else if (url.startsWith('https://www.auto1.com/')) {
+      engineType = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Cylinder capacity'))?.nextElementSibling?.textContent;
     } else {
       engineType = document.querySelector('.EngineInfo__displacement')?.textContent + ' ' + document.querySelector('.EngineInfo__engine')?.textContent;
     }
-    // console.log(engineType);
     return engineType;
   }
 
@@ -230,7 +278,7 @@
     } else {
       vehicleType = null;
     }
-    // console.log(vehicleType);
+
     return vehicleType;
   }
 
@@ -245,6 +293,9 @@
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Selling Branch:')).parentElement
       // const lotDetail = Array.from(document.querySelectorAll('.data-list__item')).find(element => element.querySelector('.data-list__label')?.textContent.includes('Primary Damage:'))
       location = lotDetail?.querySelector('.data-list__value')?.textContent
+    } else if (url.startsWith('https://www.auto1.com/')) {
+      let location_title = Array.from(document.querySelectorAll('*')).find(element => element.textContent.trim() === 'Car location');
+      location = location_title?.nextElementSibling?.textContent.trim();
     } else {
       location = document.querySelector('[data-test-id="pickup-location-container"]')?.textContent || null;
     }
@@ -279,6 +330,12 @@
           return src;
         }
       });
+    } else if (url.startsWith('https://www.auto1.com/')) {
+      // to get bigger image add 'max-' before the image name
+      urls = Array.from(document.querySelector('.image-gallery-thumbnails-container')
+                  .querySelectorAll('img'))
+                  .map(element => element.getAttribute('src'));
+
     } else {
       let imgElements = Array.from(document.getElementsByClassName('svfy_scroller')[0]?.children)
 
@@ -315,13 +372,13 @@
   }
 
   function showNotification(message) {
-    let notificationBanner = document.getElementById('notificationBanner');
-    // debugger;
+    let notificationBanner = document.getElementById('notificationBannerBidmotors');
+
     if (!notificationBanner) {
       notificationBanner = document.createElement('div');
-      notificationBanner.id = 'notificationBanner';
-      notificationBanner.className = 'notification-banner';
-      window.location.href.startsWith('https://www.copart.com/lot/') ? document.body.appendChild(notificationBanner) : document.getElementsByTagName('header')[0].appendChild(notificationBanner)      
+      notificationBanner.id = 'notificationBannerBidmotors';
+      notificationBanner.className = 'notification-banner-bidmotors';
+      window.location.href.startsWith('https://www.copart.com/lot/') || window.location.href.startsWith('https://www.auto1.com/') ? document.body.insertBefore(notificationBanner, document.body.firstChild) : document.getElementsByTagName('header')[0].appendChild(notificationBanner)      
     }
 
     notificationBanner.textContent = message;
@@ -339,6 +396,9 @@
       const copyBtn = document.createElement("button");
       copyBtn.id = "copy-response-btn";
       copyBtn.className = "send-to-bidmotors-btn";
+      if (window.location.href.startsWith('https://www.auto1.com/')) {
+        copyBtn.className = "send-to-bidmotors-btn auto1-button";
+      }
       copyBtn.innerText = "Копиране на отговор!";
 
       // Insert after sendRequestBtn
@@ -362,22 +422,20 @@
 
   const extractData = async () => {
     const url = window.location.href;
-    if (!(url.startsWith('https://www.copart.com/lot/') || url.startsWith('https://www.iaai.com/') || url.startsWith('https://search.manheim.com/'))) {
+    if (!(url.startsWith('https://www.copart.com/lot/') || url.startsWith('https://www.iaai.com/') || url.startsWith('https://search.manheim.com/') || url.startsWith('https://www.auto1.com/'))) {
       return { error: 'This is not a Copart, IAAI or Manheim lot page.' };
     }
 
     const lotDetailsArray = Array.from(document.querySelectorAll('.lot-details-info'));
 
     const data = {
-      title: sanitize(document.querySelector('h1')?.textContent.split(' ').slice(1).join(' ') || document.querySelector('.ListingTitle__title')?.textContent.split(' ').slice(1).join(' ')),
-      year: parseInt(sanitize(document.querySelector('h1')?.textContent.split(' ', 2)[0] || document.querySelector('h1')?.textContent.split(' ', 2)[1]) || document.querySelector('.ListingTitle__title')?.textContent.split(' ', 2)[0]) || null,
+      title: sanitize(await extractTitle(url)),
+      year: parseInt(sanitize(await extractYear(url)))|| null,
       vin_code: sanitize(await extractVincode(url, lotDetailsArray)),
       // TODO: no lot_number on manheim website
       lot_number: sanitize(await extractLotnumber(url, lotDetailsArray)),
       // TODO: have not found bid_price on iaai page and on manheim
-      bid_price: sanitize(document.querySelector('.bid-price')?.textContent) || 
-                 sanitize(document.querySelector('[tool-tip-pop-over] .panel-content.clearfix .clearfix.pt-5.border-top-gray:nth-child(2) span')?.textContent) ||
-                 sanitize(document.querySelector('.bid-buy__amount')?.textContent),
+      bid_price: sanitize(await extractBidPrice(url)),
       buy_now_price: sanitize(await extractBuyNowPrice(url)),
       // TODO: have not found state on manheim
       state: sanitize(await extractState(url)),
@@ -394,9 +452,8 @@
       auction_date_label: sanitize(parsedTextDate(url)),
       location: sanitize(await extractLocation(url)),
       image_urls: await extractImages(url),
-
-      website_url: window.location.href,
-      vehicle_type: sanitize(await extractVehicleType(url)),
+      website_url: (url.startsWith('https://www.auto1.com/') ? window.location.href.split('?')[0] : window.location.href),
+      vehicle_type: url.startsWith('https://www.auto1.com/') ? 'car' : sanitize(await extractVehicleType(url)),
       video_url: await extractVideoUrl(url),
       three_sixty_view_url: await extractThreeSixtyUrl(url)
     };
@@ -424,6 +481,8 @@
     } else if (url.startsWith('https://www.iaai.com/')) {
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Auction Date and Time:'))
       date = lotDetail?.nextElementSibling?.textContent || null;
+    } else if (url.startsWith('https://www.auto1.com/')) {
+      date = calculateAuctionDate(url);
     } else {
       date = document.querySelector('[data-test-id="auction-start-date"]').nextElementSibling?.textContent || null;
     }
@@ -440,8 +499,6 @@
   }
 
   function calculateAuctionDate(url) {
-    const textDate = parsedTextDate(url);
-    if (['Future', 'Upcoming Lot', null, 'Not Ready for Sale'].includes(textDate)) return null;
 
     if (url.startsWith('https://www.copart.com/lot/')) {
       const timeLeftToAuction = document.querySelector('[data-uname="lotdetailSaleinformationtimeleftvalue"]')?.textContent;
@@ -453,23 +510,34 @@
       const [days, hours, minutes] = matches.slice(1, 4).map(Number);
       return new Date(Date.now() + days * 86400000 + hours * 3600000 + minutes * 60000).toISOString();
     } else if (url.startsWith('https://www.iaai.com/')) {
+      const textDate = parsedTextDate(url);
+      if (['Future', 'Upcoming Lot', null, 'Not Ready for Sale'].includes(textDate)) return null;
+
       // console.log(parseDateString(textDate));
       return parseDateString(textDate);
+    } else if (url.startsWith('https://www.auto1.com/')) {
+      
+      const dayElement = document.querySelector('.countdown__days');
+      const days = dayElement ? parseInt(dayElement.textContent.trim(), 10) : 0;
+
+      const digits = Array.from(document.querySelectorAll('.countdown__clock .countdown__digit'))
+      .map(span => span.textContent.trim().charAt(0));
+
+      const hours = parseInt(digits[0] + digits[1], 10);
+      const minutes = parseInt(digits[2] + digits[3], 10);
+      const now = new Date();
+      let targetDate = new Date(now);
+
+      targetDate.setDate(now.getDate() + days);
+      targetDate.setHours(now.getHours() + hours);
+      targetDate.setMinutes(now.getMinutes() + minutes);
+      return targetDate;
     } else {
+      const textDate = parsedTextDate(url);
+      if (['Future', 'Upcoming Lot', null, 'Not Ready for Sale'].includes(textDate)) return null;
+
       const timeLeftToAuction = document.querySelector('.bboEndStartTime')?.textContent
       if (!timeLeftToAuction) return null;
-      // const matches = timeLeftToAuction.match(/(?:(\d+)d)?\s*(?:(\d+)h)?\s*(?:(\d+)m)?/);
-      // if (!matches) return null;
-      
-      // let days = 0, hours = 0, minutes = 0;
-      // if (matches) {
-      //   days = matches[1] ? parseInt(matches[1]) : 0;
-      //   hours = matches[2] ? parseInt(matches[2]) : 0;
-      //   minutes = matches[3] ? parseInt(matches[3]) : 0;
-      // }
-      // return new Date(Date.now() + days * 86400000 + hours * 3600000 + minutes * 60000)?.toISOString();
-      
-      // TODO: check
       
       let matches = textDate.match(/(\d{2})\/(\d{2})\s*-\s*(\d{1,2}):(\d{2})(am|pm)/);
 
@@ -551,6 +619,8 @@
       return document.querySelector('.vehicle-header__actions');
     } else if (window.location.href.startsWith('https://search.manheim.com/results#/details')) {
       return document.querySelector('.ListingTitle__container');
+    } else if (window.location.href.startsWith('https://www.auto1.com/')) {
+      return document.querySelector('.car-next-prev-links');
     } else {
       return null;
     }
@@ -570,6 +640,9 @@
       if (!sendRequestBtnExists) {
         const sendRequestBtn = document.createElement("button");
         sendRequestBtn.className = "send-to-bidmotors-btn";
+        if (window.location.href.startsWith('https://www.auto1.com/')) {
+          sendRequestBtn.className = "send-to-bidmotors-btn auto1-button";
+        }
         sendRequestBtn.title = "Click to send data to Bidmotors";
         sendRequestBtn.innerText = 'Добавете в Bidmotors!';
         sendRequestBtn.id = 'extractData';
