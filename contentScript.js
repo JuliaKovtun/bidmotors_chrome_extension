@@ -76,7 +76,7 @@
       buyNowPrice = lotDetail?.nextElementSibling?.textContent.split(' ')[0] || null;
     } else if (url.startsWith('https://www.auto1.com/')) {
       buyNowPrice = document.querySelector('.buy-now-block__price-value')?.childNodes[0]?.textContent?.trim() ||
-        document.querySelector("div[data-qa-id='ip_price_value']").textContent || null;
+        document.querySelector("div[data-qa-id='ip_price_value']")?.textContent || null;
     } else {
       buyNowPrice = document.querySelector('.bid-buy__amount')?.textContent || null;
     }
