@@ -237,9 +237,13 @@
       carDamage = lotDetail?.querySelector('.data-list__value')?.textContent
     } else if (url.startsWith('https://www.auto1.com/')) {
       table = document.querySelector('div[data-testid="area-table"]');
-      carDamage = Array.from(table?.children).map(row => row.firstElementChild?.textContent.trim()).filter(part => part);
-      carDamage.shift();
-      carDamage = carDamage.join(', ');
+      if (table) {
+        carDamage = Array.from(table?.children).map(row => row.firstElementChild?.textContent.trim()).filter(part => part);
+        carDamage.shift();
+        carDamage = carDamage.join(', ');
+      } else {
+        carDamage = null;
+      }
     } else {
       carDamage = null;
     }
