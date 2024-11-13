@@ -24,9 +24,11 @@
     if (url.startsWith('https://www.auto1.com/')) {
       year = [...document.querySelectorAll('td')].find(td => td.textContent.includes('Build year'))?.nextElementSibling?.textContent.trim();
     } else if (url.startsWith('https://www.troostwijkauctions.com/')) {
-      year = Array.from(document.querySelectorAll('.LotMetadata_tableRow__6jBXk'))
-        .find(row => row.querySelector('.LotMetadata_key__O2hYN')?.textContent.includes('Year of build'))
-        ?.querySelector('.LotMetadata_value__GqSig')?.textContent.trim() || null;
+      year = ['Year of build', 'Construction date'].map(key =>
+          Array.from(document.querySelectorAll('.LotMetadata_tableRow__6jBXk'))
+            .find(row => row.querySelector('.LotMetadata_key__O2hYN')?.textContent.includes(key))
+            ?.querySelector('.LotMetadata_value__GqSig')?.textContent.trim()
+        ).find(value => value) || null;
       const datePattern = /^\d{2}-\d{2}-\d{4}$/;
       if (year != null) {
         year = datePattern.test(year) ? year.split('-')[2] : year
@@ -163,7 +165,7 @@
       odometerValue = Array.from(document.querySelectorAll('.LotMetadata_tableRow__6jBXk'))
                 .find(row => row.querySelector('.LotMetadata_key__O2hYN')?.textContent.includes('Mileage during intake (km)'))
                 ?.querySelector('.LotMetadata_value__GqSig')?.textContent.trim() || null;
-      return odometerValue.replace(/\D/g, '');
+      return odometerValue?.replace(/\D/g, '');
     } else {
       odometerValue = document.querySelector('.OdometerInfo__container')?.textContent || null;
     }
@@ -338,8 +340,7 @@
     return engineType;
   }
 
-  // TODO
-  // troostwijk ????
+  // troostwijk done
   async function extractVehicleType(url) {
     let vehicleType;
     if (url.startsWith('https://www.copart.com/lot/')) {
@@ -351,6 +352,14 @@
     } else if (url.startsWith('https://www.iaai.com/')) {
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Vehicle:')).parentElement
       vehicleType = lotDetail?.querySelector('.data-list__value')?.textContent
+    } else if (url.startsWith('https://www.troostwijkauctions.com/')) {
+      const listItems = document.querySelectorAll('li');
+
+      listItems.forEach((li) => {
+        if (li.textContent.includes('Motorcycles and quads')) {
+          vehicleType = 'motorcycle'
+        }
+      });
     } else {
       vehicleType = null;
     }
