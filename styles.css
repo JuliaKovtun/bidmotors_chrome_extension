@@ -18,6 +18,11 @@
   margin-right: 0px;
 }
 
+.troostwijkauctions-button {
+  height: 55px;
+  width: 120px;
+}
+
 .dropdown {
   display: flex;
 }

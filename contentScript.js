@@ -27,6 +27,10 @@
       year = Array.from(document.querySelectorAll('.LotMetadata_tableRow__6jBXk'))
         .find(row => row.querySelector('.LotMetadata_key__O2hYN')?.textContent.includes('Year of build'))
         ?.querySelector('.LotMetadata_value__GqSig')?.textContent.trim() || null;
+      const datePattern = /^\d{2}-\d{2}-\d{4}$/;
+      if (year != null) {
+        year = datePattern.test(year) ? year.split('-')[2] : year
+      }
     } else {
       year = document.querySelector('h1')?.textContent.split(' ', 2)[0] ||
               document.querySelector('h1')?.textContent.split(' ', 2)[1] ||
@@ -706,7 +710,7 @@
     } else if (window.location.href.startsWith('https://www.auto1.com/')) {
       return document.querySelector('.car-next-prev-links');
     } else if (window.location.href.startsWith('https://www.troostwijkauctions.com/')){
-      return document.querySelector('[data-cy="item-share-button"]')
+      return document.querySelector('.LotHeader_buttonsContainer__wl3Xd');
     } else {
       return null;
     }
@@ -731,6 +735,7 @@
         }
 
         if (window.location.href.startsWith('https://www.troostwijkauctions.com/')) {
+          sendRequestBtn.className = "send-to-bidmotors-btn troostwijkauctions-button";
           const lot_data_button = document.querySelector('.LotMetadata_showMoreButton__rVJiH');
           if (lot_data_button) {
             lot_data_button.click();
@@ -743,7 +748,12 @@
         sendRequestBtn.innerText = 'Добавете в Bidmotors!';
         sendRequestBtn.id = 'extractData';
 
-        targetElement.insertAdjacentElement('beforebegin', sendRequestBtn);
+
+        if (window.location.href.startsWith('https://www.troostwijkauctions.com/')) {
+          targetElement.insertAdjacentElement('afterbegin', sendRequestBtn);
+        } else {
+          targetElement.insertAdjacentElement('beforebegin', sendRequestBtn);
+        }
         sendRequestBtn.addEventListener("click", sendData);
         if (document.querySelector(".send-to-bidmotors-btn")){
           console.log('Button added by newTabLoaded');
