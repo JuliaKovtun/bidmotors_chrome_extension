@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Bidmotors",
-  "version": "3.1",
-  "description": "Extracts data from Copart, IAAI, Manheim and Auto1. Sends data to a Bidmotors web application.",
+  "version": "3.2",
+  "description": "Extracts data from Copart, IAAI, Manheim, Auto1 and Troostwijkauctions. Sends data to a Bidmotors web application.",
   "permissions": [
     "activeTab",
     "scripting",
@@ -16,14 +16,25 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://*.copart.com/*", "https://*.iaai.com/*", "https://*.manheim.com/*", "https://*.auto1.com/*"],
+      "matches": [
+        "https://*.copart.com/*",
+        "https://*.iaai.com/*",
+        "https://*.manheim.com/*",
+        "https://*.auto1.com/*",
+        "https://*.troostwijkauctions.com/*"],
       "js": ["popup.js", "contentScript.js", "jquery-3.7.1.min.js"]
     }
   ],
   "web_accessible_resources": [
     {
       "resources": ["styles.css"],
-      "matches": ["https://*.copart.com/*", "https://*.iaai.com/*", "https://*.manheim.com/*", "https://*.auto1.com/*"]
+      "matches": [
+        "https://*.copart.com/*",
+        "https://*.iaai.com/*",
+        "https://*.manheim.com/*",
+        "https://*.auto1.com/*",
+        "https://*.troostwijkauctions.com/*"
+      ]
     }
   ],
   "action": {
