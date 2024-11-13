@@ -679,7 +679,7 @@
     data.phone_number = phoneNumber;
 
     console.log('Data: ' + data)
-    fetch('http://localhost:3000/admin/create_from_copart_website', {
+    fetch('https://bidmotors.bg/admin/create_from_copart_website', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
