@@ -518,7 +518,7 @@
 
   const extractData = async () => {
     const url = window.location.href;
-    if (!(url.startsWith('https://www.copart.com/lot/') || url.startsWith('https://www.iaai.com/') || url.startsWith('https://search.manheim.com/') || url.startsWith('https://www.troostwijkauctions.com/'))) {
+    if (!(url.startsWith('https://www.copart.com/lot/') || url.startsWith('https://www.iaai.com/') || url.startsWith('https://search.manheim.com/') || url.startsWith('https://www.troostwijkauctions.com/') || url.startsWith('https://www.auto1.com/'))) {
       return { error: 'This is not a Copart, IAAI or Manheim lot page.' };
     }
 
