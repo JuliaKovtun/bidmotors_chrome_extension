@@ -5,20 +5,24 @@
     return text.replace(/\n/g, '').trim();
   }
 
-  // troostwijk done
   async function extractTitle(url) {
     let title;
     if (url.startsWith('https://www.auto1.com/')) {
       title = document.querySelector('.car-info-title')?.children[0]?.textContent;
     } else if (url.startsWith('https://www.troostwijkauctions.com/')) {
       title = document.querySelector('h1')?.textContent;
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      makeElement = document.querySelector("span[data-bind*='attr: {\\'aria-label\\': Make}']");
+      modelElement = document.querySelector("span[data-bind*='attr: {\\'aria-label\\': Model}']");
+      make = makeElement ? makeElement.textContent.trim() : '';
+      model = modelElement ? modelElement.textContent.trim() : '';
+      title = `${make} ${model}`;
     } else {
       title = document.querySelector('h1')?.textContent.split(' ').slice(1).join(' ') || document.querySelector('.ListingTitle__title')?.textContent.split(' ').slice(1).join(' ')
     }
     return title;
   }
 
-  // troostwijk done
   async function extractYear(url) {
     let year;
     if (url.startsWith('https://www.auto1.com/')) {
@@ -33,6 +37,9 @@
       if (year != null) {
         year = datePattern.test(year) ? year.split('-')[2] : year
       }
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      yearElement = document.querySelector("span[data-bind*='attr: {\\'aria-label\\': Year}']");
+      year = yearElement ? yearElement?.textContent?.trim() : '';
     } else {
       year = document.querySelector('h1')?.textContent.split(' ', 2)[0] ||
               document.querySelector('h1')?.textContent.split(' ', 2)[1] ||
@@ -41,7 +48,6 @@
     return year;
   }
 
-  // troostwijk done
   async function extractVincode(url, lotDetailsArray) {
     let vincode;
     if (url.startsWith('https://www.copart.com/lot/')) {
@@ -58,13 +64,16 @@
       vincode = Array.from(document.querySelectorAll('.LotMetadata_tableRow__6jBXk'))
         .find(row => row.querySelector('.LotMetadata_key__O2hYN')?.textContent.includes('Chassis number'))
         ?.querySelector('.LotMetadata_value__GqSig')?.textContent.trim() || null;
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      vincode = Array.from(document.querySelectorAll('.conditTableRow'))
+        .find(row => row.querySelector('.conditTableCell.conditLabel')?.textContent.trim() === 'VIN:')
+        ?.querySelector('.conditTableCell span[data-bind]')?.textContent.trim().split(' ')[0] || '';
     } else {
       vincode = document.querySelector('.Vin__container')?.textContent || null;
     }
     return vincode;
   }
 
-  // troostwijk done
   async function extractLotnumber(url, lotDetailsArray) {
     let lotnumber;
     if (url.startsWith('https://www.copart.com/lot/')) {
@@ -83,6 +92,12 @@
       lotnumber = Array.from(document.querySelectorAll('.LotDetails_lotInfoRow___LIs_'))
         .find(row => row.querySelector('dd')?.textContent.includes('Lot number'))
         ?.querySelector('dt')?.textContent.trim() || null
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      // lotnumber = Array.from(document.querySelectorAll('.conditTableRow'))
+      //   .find(row => row.querySelector('.conditTableCell.conditLabel')?.textContent.trim() === 'Stock #:')
+      //   ?.querySelector('.conditTableCell span[data-bind]')?.textContent.trim().split(' ')[0] || '';
+      vehicleDetails = JSON.parse(document.querySelector('#VehicleDetailsVM').textContent);
+      lotnumber = vehicleDetails.StockNo;
     } else {
       lotnumber = null;
     }
@@ -104,13 +119,14 @@
     } else if (url.startsWith('https://www.troostwijkauctions.com/')) {
       // TODO: check that ther is no buy now price
       null;
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      buyNowPrice = JSON.parse(document.querySelector('#VehicleDetailsVM').textContent)?.BuyNowPrice
     } else {
       buyNowPrice = document.querySelector('.bid-buy__amount')?.textContent || null;
     }
     return buyNowPrice;
   }
 
-  // troostwijk done
   async function extractBidPrice(url) {
     let bidPrice;
 
@@ -118,6 +134,8 @@
       bidPrice = document.querySelector('.money-value')?.firstChild?.textContent
     } else if (url.startsWith('https://www.troostwijkauctions.com/')) {
       bidPrice = document.querySelector('[data-cy="item-bid-current-bid-text"]')?.textContent
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      bidPrice = JSON.parse(document.querySelector('#VehicleDetailsVM').textContent)?.HighPrebid
     } else {
       bidPrice = document.querySelector('.bid-price')?.textContent ||
         document.querySelector('[tool-tip-pop-over] .panel-content.clearfix .clearfix.pt-5.border-top-gray:nth-child(2) span')?.textContent ||
@@ -126,8 +144,6 @@
     return bidPrice;
   }
 
-  // troostwijk done
-  // TODO: check state where no start and drive
   async function extractState(url) {
     let state;
     if (url.startsWith('https://www.copart.com/lot/')) {
@@ -139,13 +155,14 @@
                 .find(row => row.querySelector('.LotMetadata_key__O2hYN')?.textContent.includes('Start and drive'))
                 ?.querySelector('.LotMetadata_value__GqSig')?.textContent.trim() || null;
       state = state == 'No' ? null : 'Run and Drive'
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      state = document.querySelector('.OverviewRunDrive')?.nextElementSibling?.textContent?.trim() || null;
     } else {
       state = null;
     }
     return state;
   }
 
-  // troostwijk done
   async function extractOdometerValue(url, lotDetailsArray) {
     let odometerValue;
     if (url.startsWith('https://www.copart.com/lot/')) {
@@ -166,6 +183,11 @@
                 .find(row => row.querySelector('.LotMetadata_key__O2hYN')?.textContent.includes('Mileage during intake (km)'))
                 ?.querySelector('.LotMetadata_value__GqSig')?.textContent.trim() || null;
       return odometerValue?.replace(/\D/g, '');
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      odometerValue = Array.from(document.querySelectorAll('.conditTableRow'))
+        .find(row => row.querySelector('.conditTableCell.conditLabel')?.textContent.trim() === 'Odometer:')
+        ?.querySelector('.conditTableCell span[data-bind]')?.textContent?.trim()?.split(' ')[0] || '';
+      return odometerValue;
     } else {
       odometerValue = document.querySelector('.OdometerInfo__container')?.textContent || null;
     }
@@ -173,7 +195,6 @@
     return odometerValue ? odometerValue.replace(/\D/g, '') * 1.6 : null;
   }
 
-  // troostwijk done
   async function extractFuelType(url, lotDetailsArray) {
     let fuelType;
     if (url.startsWith('https://www.copart.com/lot/')) {
@@ -192,13 +213,16 @@
       fuelType = Array.from(document.querySelectorAll('.LotMetadata_tableRow__6jBXk'))
                 .find(row => row.querySelector('.LotMetadata_key__O2hYN')?.textContent.includes('Fuel type'))
                 ?.querySelector('.LotMetadata_value__GqSig')?.textContent.trim() || null;
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      fuelType = Array.from(document.querySelectorAll('.conditTableRow'))
+        .find(row => row.querySelector('.conditTableCell.conditLabel')?.textContent.trim() === 'Fuel Type:')
+        ?.querySelector('.conditTableCell span[data-bind]')?.textContent?.trim() || '';
     } else {
       fuelType = document.querySelector('.EngineInfo__fuel-type')?.textContent
     }
     return fuelType;
   }
 
-  // troostwijk done
   async function extractGearbox(url, lotDetailsArray) {
     let gearbox;
     if (url.startsWith('https://www.copart.com/lot/')) {
@@ -218,6 +242,11 @@
       gearbox = Array.from(document.querySelectorAll('.LotMetadata_tableRow__6jBXk'))
                 .find(row => row.querySelector('.LotMetadata_key__O2hYN')?.textContent.includes('Transmission'))
                 ?.querySelector('.LotMetadata_value__GqSig')?.textContent.trim() || null;
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      let shortGearbox = Array.from(document.querySelectorAll('.conditTableRow'))
+        .find(row => row.querySelector('.conditTableCell.conditLabel')?.textContent.trim() === 'Transmission:')
+        ?.querySelector('.conditTableCell span[data-bind]')?.textContent?.trim() || '';
+      gearbox = (shortGearbox && shortGearbox == 'Auto') ? 'Automatic' : 'Manual'
     } else {
       let shortGearbox =  document.querySelector('.EngineInfo__transmission')?.textContent || null;
       gearbox = (shortGearbox && shortGearbox == 'Auto') ? 'Automatic' : 'Manual'
@@ -225,7 +254,6 @@
     return gearbox;
   }
 
-// troostwijk done
   async function extractKeys(url) {
     let keys;
     if (url.startsWith('https://www.copart.com/lot/')) {
@@ -240,6 +268,11 @@
                 .find(row => row.querySelector('.LotMetadata_key__O2hYN')?.textContent.includes('Key count'))
                 ?.querySelector('.LotMetadata_value__GqSig')?.textContent.trim() || null;
       keys = keysNumber == '0' ? null : 'YES'
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      keysString = Array.from(document.querySelectorAll('.conditTableRow'))
+      .find(row => row.querySelector('.conditTableCell.conditLabel')?.textContent.trim() === 'Keys Present:')
+      ?.querySelector('.conditTableCell span[data-bind]')?.textContent?.trim() || '';
+      keys = keysString == 'Yes' ? 'YES' : null
     } else {
       keysNumber = document.querySelector('.dashboard-icon__label')?.textContent.split('')[3]
       keys = keysNumber == '0' ? null : 'YES'
@@ -247,7 +280,6 @@
     return keys;
   }
 
-  // troostwijk done
   async function extractDrive(url, lotDetailsArray) {
     let drive;
     if (url.startsWith('https://www.copart.com/lot/')) {
@@ -263,6 +295,24 @@
       drive = Array.from(document.querySelectorAll('.LotMetadata_tableRow__6jBXk'))
                 .find(row => row.querySelector('.LotMetadata_key__O2hYN')?.textContent.includes('Driving'))
                 ?.querySelector('.LotMetadata_value__GqSig')?.textContent.trim() || null;
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      let shortDrive = Array.from(document.querySelectorAll('.conditTableRow'))
+        .find(row => row.querySelector('.conditTableCell.conditLabel')?.textContent.trim() === 'Drive Line Type:')
+        ?.querySelector('.conditTableCell span[data-bind]')?.textContent?.trim()?.toUpperCase() || '';
+
+        switch (shortDrive) {
+          case 'AWD':
+            drive = "All-Wheel Drive";
+            break;
+          case 'FWD':
+            drive = "Front-Wheel Drive";
+            break;
+          case 'RWD':
+            drive = "Rear-Wheel Drive";
+            break;
+          default:
+            drive = shortDrive;
+        }
     } else {
       let shortDrive = document.querySelector('.DriveTrain__container')?.textContent.replace('•', '')
       switch (shortDrive) {
@@ -288,7 +338,6 @@
     return drive;
   }
 
-  // troostwijk done
   async function extractDamage(url) {
     let carDamage;
     if (url.startsWith('https://www.copart.com/lot/')) {
@@ -311,13 +360,16 @@
       carDamage = Array.from(document.querySelectorAll('.LotMetadata_tableRow__6jBXk'))
                 .find(row => row.querySelector('.LotMetadata_key__O2hYN')?.textContent.includes('Visible damages'))
                 ?.querySelector('.LotMetadata_value__GqSig')?.textContent.trim() || null;
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      carDamage = Array.from(document.querySelectorAll('.conditTableRow'))
+        .find(row => row.querySelector('.conditTableCell.conditLabel')?.textContent.trim() === 'Primary Damage:')
+        ?.querySelector('.conditTableCell span[data-bind]')?.textContent?.trim() || '';
     } else {
       carDamage = null;
     }
     return carDamage;
   }
 
-  // troostwijk done
   async function extractEngineType(url, lotDetailsArray) {
     let engineType;
     if (url.startsWith('https://www.copart.com/lot/')) {
@@ -334,13 +386,16 @@
       engineType = Array.from(document.querySelectorAll('.LotMetadata_tableRow__6jBXk'))
                     .find(row => row.querySelector('.LotMetadata_key__O2hYN')?.textContent.includes('Cylinder capacity'))
                     ?.querySelector('.LotMetadata_value__GqSig')?.textContent.trim() || null;
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      engineType = Array.from(document.querySelectorAll('.conditTableRow'))
+        .find(row => row.querySelector('.conditTableCell.conditLabel')?.textContent.trim() === 'Engine:')
+        ?.querySelector('.conditTableCell span[data-bind]')?.textContent?.trim() || '';
     } else {
       engineType = document.querySelector('.EngineInfo__displacement')?.textContent + ' ' + document.querySelector('.EngineInfo__engine')?.textContent;
     }
     return engineType;
   }
 
-  // troostwijk done
   async function extractVehicleType(url) {
     let vehicleType;
     if (url.startsWith('https://www.copart.com/lot/')) {
@@ -360,6 +415,11 @@
           vehicleType = 'motorcycle'
         }
       });
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      iaaiType = Array.from(document.querySelectorAll('.conditTableRow'))
+        .find(row => row.querySelector('.conditTableCell.conditLabel')?.textContent.trim() === 'Vehicle:')
+        ?.querySelector('.conditTableCell span[data-bind]')?.textContent?.trim() || '';
+      vehicleType = iaaiType === 'Motorcycle' ? 'motorcycle' : 'car'
     } else {
       vehicleType = null;
     }
@@ -367,7 +427,6 @@
     return vehicleType;
   }
 
-  // troostwijk done
   async function extractLocation(url) {
     let location;
     if (url.startsWith('https://www.copart.com/lot/')) {
@@ -386,13 +445,16 @@
       location = Array.from(document.querySelectorAll('.LotDetails_lotInfoRow___LIs_'))
         .find(row => row.querySelector('dd')?.textContent.includes('Location:'))
         ?.querySelector('dt')?.textContent.trim() || null
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      locationArray = document.querySelector('span.preBidData[aria-label="Location"]')?.nextElementSibling?.textContent?.split(' - ')
+      locationArray?.shift()
+      location = locationArray?.join(' ') || null;
     } else {
       location = document.querySelector('[data-test-id="pickup-location-container"]')?.textContent || null;
     }
     return location;
   }
 
-  // troostwijk done
   async function extractImages(url) {
     let urls;
 
@@ -432,6 +494,9 @@
       urls = Array.from(urls_array).map(slide => 
         slide.querySelector('img')?.getAttribute('src') || null
       ).filter(src => src !== null).map(url => url.split(' ')[0]);
+    } else if (url.startsWith('https://ca.iaai.com/')){
+      urls = Array.from(document.querySelectorAll('.imageThunbnailItem'))
+        .map(element => element.getAttribute('data-picture'));
     } else {
       let imgElements = Array.from(document.getElementsByClassName('svfy_scroller')[0]?.children)
 
@@ -452,6 +517,8 @@
   async function extractThreeSixtyUrl(url) {
     if (url.startsWith('https://www.iaai.com/') && document.querySelector('.vehicle-image__thumb--360')) {
       return document.getElementById('360imagesModal')?.querySelector('iframe')?.src
+    } else if (url.startsWith('https://ca.iaai.com/')) {
+      return JSON.parse(document.querySelector('#VehicleDetailsVM').textContent)?.Stock360ViewUrl
     }
   }
 
@@ -474,12 +541,13 @@
       notificationBanner = document.createElement('div');
       notificationBanner.id = 'notificationBannerBidmotors';
       notificationBanner.className = 'notification-banner-bidmotors';
-      window.location.href.startsWith('https://www.copart.com/lot/') || window.location.href.startsWith('https://www.auto1.com/') ? document.body.insertBefore(notificationBanner, document.body.firstChild) : document.getElementsByTagName('header')[0].appendChild(notificationBanner)      
+      window.location.href.startsWith('https://www.copart.com/lot/') || window.location.href.startsWith('https://www.auto1.com/') || window.location.href.startsWith('https://ca.iaai.com/') ? document.body.insertBefore(notificationBanner, document.body.firstChild) : document.getElementsByTagName('header')[0].appendChild(notificationBanner)      
     }
 
     notificationBanner.textContent = message;
     notificationBanner.style.display = 'block';
-    
+    notificationBanner.style.zIndex = '1001';
+
     setTimeout(() => {
       notificationBanner.style.display = 'none';
     }, 3000);
@@ -518,7 +586,7 @@
 
   const extractData = async () => {
     const url = window.location.href;
-    if (!(url.startsWith('https://www.copart.com/lot/') || url.startsWith('https://www.iaai.com/') || url.startsWith('https://search.manheim.com/') || url.startsWith('https://www.troostwijkauctions.com/') || url.startsWith('https://www.auto1.com/'))) {
+    if (!(url.startsWith('https://www.copart.com/lot/') || url.startsWith('https://www.iaai.com/') || url.startsWith('https://ca.iaai.com/') || url.startsWith('https://search.manheim.com/') || url.startsWith('https://www.troostwijkauctions.com/') || url.startsWith('https://www.auto1.com/'))) {
       return { error: 'This is not a Copart, IAAI or Manheim lot page.' };
     }
 
@@ -561,6 +629,13 @@
     if (url.startsWith('https://www.iaai.com/')) {
       const vlink = $("#hdnVRDUrl").val();
       return vlink || null;
+    } else if (url.startsWith('https://ca.iaai.com/')) {
+      parcedJson = JSON.parse(document.querySelector('#VehicleDetailsVM').textContent)
+      if (parcedJson?.IsEngineVideoAvailable) {
+        return 'https://ca.iaai.com/Vehicles/GetMediaBytes?stockId=' + parcedJson.ItemId + '&stockNum=' + parcedJson.StockNo
+      } else {
+        return null;
+      }
     } else {
       null;
     }
@@ -577,7 +652,7 @@
     } else if (url.startsWith('https://www.iaai.com/')) {
       const lotDetail = Array.from(document.querySelectorAll('.data-list__label')).find(element => element.textContent.includes('Auction Date and Time:'))
       date = lotDetail?.nextElementSibling?.textContent || null;
-    } else if (url.startsWith('https://www.auto1.com/') || url.startsWith('https://www.troostwijkauctions.com/')) {
+    } else if (url.startsWith('https://www.auto1.com/') || url.startsWith('https://www.troostwijkauctions.com/') || url.startsWith('https://ca.iaai.com/')) {
       date = calculateAuctionDate(url);
     } else {
       date = document.querySelector('[data-test-id="auction-start-date"]').nextElementSibling?.textContent || null;
@@ -629,6 +704,13 @@
       return targetDate;
     } else if (url.startsWith('https://www.troostwijkauctions.com/')) {
       return document.querySelector('[data-cy="item-bid-closing-time-text"]')?.textContent;
+    } else if (url.startsWith('https://ca.iaai.com/')) {
+      if (document.getElementsByClassName('dateLoc').length) {
+        return caIaaiAuctionDate();
+      } else {
+        return JSON.parse(document.querySelector('#VehicleDetailsVM').textContent).BuyNowCloseDate + ' ' + JSON.parse(document.querySelector('#VehicleDetailsVM').textContent).UserTimezoneAbb;
+        // return JSON.parse(document.querySelector('#VehicleDetailsVM').textContent).BuyNowCloseDate;
+      }
     } else {
       const textDate = parsedTextDate(url);
       if (['Future', 'Upcoming Lot', null, 'Not Ready for Sale'].includes(textDate)) return null;
@@ -657,7 +739,42 @@
     }
   }
 
-  // No data on new interface: state(highlights), keys, damage
+
+  function caIaaiAuctionDate() {
+    const vehicleDetails = JSON.parse(document.querySelector('#VehicleDetailsVM').textContent);
+    const day = vehicleDetails.Date;
+    const time = vehicleDetails.Time;
+    const month = vehicleDetails.Month;
+    const timezone = vehicleDetails.UserTimezoneAbb;
+    
+    return `${day} ${month} ${time} ${timezone}`
+
+    // const months = {
+    //   JAN: 0,
+    //   FEB: 1,
+    //   MAR: 2,
+    //   APR: 3,
+    //   MAY: 4,
+    //   JUN: 5,
+    //   JUL: 6,
+    //   AUG: 7,
+    //   SEP: 8,
+    //   OCT: 9,
+    //   NOV: 10,
+    //   DEC: 11,
+    // };
+
+    // let year = new Date().getFullYear();
+
+    // let date = new Date(year, months[month], parseInt(day), ...time.split(':').map(Number));
+
+    // const now = new Date();
+    // if (date <= now) {
+    //   date = new Date(year + 1, months[month], parseInt(day), ...time.split(':').map(Number));
+    // }
+
+    // return date;
+  }
 
   function injectStyles() {
     const link = document.createElement('link');
@@ -720,6 +837,8 @@
       return document.querySelector('.car-next-prev-links');
     } else if (window.location.href.startsWith('https://www.troostwijkauctions.com/')){
       return document.querySelector('.LotHeader_buttonsContainer__wl3Xd');
+    } else if (window.location.href.startsWith('https://ca.iaai.com/')){
+      return document.querySelector('#detailHeaderlogo');
     } else {
       return null;
     }
