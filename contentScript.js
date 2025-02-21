@@ -79,7 +79,7 @@
     if (url.startsWith('https://www.copart.com/lot/')) {
       lotnumber = document.querySelector('#LotNumber')?.textContent;
       if (!lotnumber) {
-        const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Lot Number:'));
+        const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Lot number:'));
         lotnumber = lotDetail ? lotDetail.querySelector('.lot-details-value')?.textContent : null;
       }
     }  else if (url.startsWith('https://www.iaai.com/')) {
@@ -375,7 +375,7 @@
     if (url.startsWith('https://www.copart.com/lot/')) {
       engineType = document.querySelector('[data-uname="lotdetailEnginetype"]')?.textContent;
       if (!engineType) {
-        const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Engine Type:'));
+        const lotDetail = lotDetailsArray.find(element => element.querySelector('.lot-details-label').textContent.includes('Engine type:'));
         engineType = lotDetail ? lotDetail.querySelector('.lot-details-value')?.textContent : null;
       }
     } else if (url.startsWith('https://www.iaai.com/')) {
