@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Bidmotors",
-  "version": "3.5",
+  "version": "3.6",
   "description": "Extracts data from Copart, IAAI, Manheim, Auto1 and Troostwijkauctions. Sends data to a Bidmotors web application.",
   "permissions": [
     "activeTab",
